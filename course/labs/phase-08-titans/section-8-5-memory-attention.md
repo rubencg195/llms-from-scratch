@@ -257,8 +257,9 @@ def titans_inference_step(model, x, surprise_threshold=0.5):
         # Write high-surprise positions
         high_surprise_mask = surprise > surprise_threshold
         if high_surprise_mask.any():
-            # Average high-surprise positions for the write
-            high_surp_h = h[high_surprise_mask].unsqueeze(0).unsqueeze(0)
+            # Collect high-surprise positions as a (1, n_positions, d_model)
+            # batch so write_delta's mean over (batch, seq) yields a 1-D vector.
+            high_surp_h = h[high_surprise_mask].unsqueeze(0)
             if high_surp_h.shape[1] > 0:
                 mem.write_delta(high_surp_h, high_surp_h, lr=0.01)
                 writes_performed += high_surprise_mask.sum().item()

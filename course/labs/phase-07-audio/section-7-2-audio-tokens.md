@@ -53,7 +53,7 @@ except ImportError:
     HAS_SF = False
 
 sample_rate = 24000
-duration_s = 1.0
+duration_s = 6.0  # long enough to yield more mel frames than the codebook size
 t = np.linspace(0, duration_s, int(sample_rate * duration_s), endpoint=False)
 # A4 note (440 Hz) with harmonics for richer sound
 wave = (0.5 * np.sin(2 * np.pi * 440 * t) +
@@ -129,8 +129,10 @@ def train_codebook_kmeans(data, codebook_size, n_iter=20):
     Returns: codebook (codebook_size, D)
     """
     N, D = data.shape
+    # Can't have more codebook entries than frames to seed them from.
+    n_clusters = min(codebook_size, N)
     # Initialize with random data points
-    indices = np.random.choice(N, codebook_size, replace=False)
+    indices = np.random.choice(N, n_clusters, replace=False)
     codebook = data[indices].copy()
 
     for iteration in range(n_iter):
@@ -139,7 +141,7 @@ def train_codebook_kmeans(data, codebook_size, n_iter=20):
         assignments = np.argmin(dists, axis=1)
 
         # Update codebook entries to mean of assigned frames
-        for k in range(codebook_size):
+        for k in range(n_clusters):
             mask = assignments == k
             if mask.sum() > 0:
                 codebook[k] = data[mask].mean(axis=0)

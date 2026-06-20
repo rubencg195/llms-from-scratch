@@ -7,6 +7,7 @@ datasets>=2.18.0
 tqdm>=4.66.0
 pillow>=10.2.0
 soundfile>=0.12.1
+scikit-learn>=1.4.0       # PCA visualization in Phase 1 embeddings lab
 
 # Instructor export toolchain
 jupytext>=1.16.0

@@ -1,0 +1,6 @@
+# Lab test-harness dependencies. Install alongside requirements.txt:
+#   pip install -r requirements.txt -r requirements-test.txt
+#
+# Note: jupytext (faithful md->cell split) and scikit-learn are already pinned in
+# requirements.txt, so the harness only adds pytest on top of the course runtime.
+pytest>=8.0.0

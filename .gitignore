@@ -9,6 +9,10 @@ venv/
 .ipynb_checkpoints/
 *.ipynb
 
+# Test harness
+.pytest_cache/
+labtest_*/
+
 # Export outputs (regenerate from source markdown)
 exports/
 *.pptx

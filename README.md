@@ -130,9 +130,21 @@ flowchart TB
 llms-from-scratch/
 ├── README.md                          ← This file (syllabus + instructor guide)
 ├── requirements.txt
+├── requirements-test.txt              ← Extra deps for the lab test harness
+├── pytest.ini
 ├── jupytext.toml
 ├── scripts/export-all.sh
 ├── .vscode/extensions.json
+├── tests/                             ← Lab test harness (see "Testing the labs")
+│   ├── run_tests.py                   ← Standalone runner (detects machine, runs all labs)
+│   ├── test_labs.py                   ← Pytest entry (one test per lab)
+│   ├── conftest.py / pytest config
+│   ├── system.py                      ← CPU / CUDA / MPS detection
+│   ├── extract.py                     ← Markdown → ordered code cells
+│   ├── core.py / exec_lab.py          ← Isolated, ordered cell execution
+│   ├── stubs.py                       ← Offline dataset / tokenizer fakes
+│   ├── preamble.py                    ← Headless plots + RNG seeding
+│   └── manifest.py                    ← Lab discovery + slow/network flags
 └── course/
     ├── lectures/                      ← Slide markdown (Pandoc → PPTX/PDF/DOCX)
     │   ├── phase-00-bridging-the-gap.md
@@ -224,6 +236,13 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 chmod +x scripts/export-all.sh
+```
+
+**Verify the labs run** before teaching (see [Testing the labs](#testing-the-labs)):
+
+```bash
+pip install -r requirements-test.txt
+python tests/run_tests.py --quick   # fast smoke test; drop --quick for the full run
 ```
 
 ### 3. VS Code / Cursor extensions
@@ -347,6 +366,151 @@ Outputs:
 - `exports/lectures/docx/*.docx`
 - `exports/lectures/pdf/*.pdf`
 - `exports/labs/ipynb/**/*.ipynb`
+
+---
+
+## Testing the labs
+
+Every lab is a runnable notebook, so "is the course still correct?" is answered by
+**actually executing the real code in each `.md` file**. The harness in `tests/`
+does exactly that — it extracts the Python cells from the markdown (the same cell
+split Jupytext uses to build the `.ipynb`), runs them in order in an isolated
+namespace, and reports any failure with the offending cell and traceback.
+
+It is designed to run unchanged on both target machines and to auto-detect which
+one it is on:
+
+| Machine | Accelerator detected | Device labs run on |
+|---------|----------------------|--------------------|
+| MacBook Air M5 (24 GB) | Apple MPS (reported) | CPU* |
+| Windows i7 + RTX 3080 (10 GB) | CUDA | CUDA (GPU) |
+
+\* The lab code selects its device with `device = "cuda" if torch.cuda.is_available() else "cpu"`,
+so on Apple Silicon it runs on CPU by design. The harness still detects and reports MPS.
+
+### Quick start
+
+```bash
+# from the repo root, in your course virtualenv
+pip install -r requirements.txt -r requirements-test.txt
+
+# Option A — standalone runner (recommended): detects the machine, runs every lab
+python tests/run_tests.py
+
+# Option B — pytest: one test per lab, rich tracebacks
+pytest tests/
+```
+
+Both auto-detect the system and print it before running. The standalone runner
+also auto-picks **online** mode (real dataset downloads) when the network is
+reachable and **offline** mode (synthetic data) when it is not.
+
+### Common commands
+
+```bash
+python tests/run_tests.py --quick         # skip the slow training labs (fast smoke test)
+python tests/run_tests.py --offline        # force synthetic data (air-gapped / no downloads)
+python tests/run_tests.py --online         # force real Hugging Face downloads
+python tests/run_tests.py --phase 1        # only Phase 1 labs
+python tests/run_tests.py --only attention # substring filter on the lab path
+python tests/run_tests.py --jobs 4         # run 4 labs in parallel (use --jobs 1 on a single GPU)
+
+pytest tests/ -m "not slow"               # skip heavy training labs
+pytest tests/ -m "not network"            # skip dataset-loading labs
+pytest tests/ --online                     # use real downloads
+pytest tests/ -k tokenization             # single lab by name
+```
+
+> On a single-GPU box (RTX 3080) keep `--jobs 1` so labs don't contend for the
+> 10 GB of VRAM. Parallel jobs are useful on the M5 (CPU) for faster smoke runs.
+
+### How it works
+
+```mermaid
+flowchart LR
+    A["course/labs/**/section-*.md"] --> B["extract.py<br/>jupytext cell split<br/>(regex fallback)"]
+    B --> C["core.py<br/>ordered exec in one namespace"]
+    P["preamble.py<br/>Agg backend · seed RNGs · no-op plt.show"] --> C
+    S["stubs.py<br/>offline dataset / tiktoken fakes"] -. offline mode .-> C
+    SY["system.py<br/>CPU / CUDA / MPS"] --> R
+    C --> R["run_tests.py / test_labs.py<br/>PASS / FAIL / TIMEOUT report"]
+```
+
+Key design decisions:
+
+- **Real code, real order.** A lab is treated as one notebook: later cells depend
+  on earlier ones, so all cells share a single namespace and run top-to-bottom.
+  Tests fail exactly where a student's kernel would.
+- **System auto-detection** (`system.py`) reports OS, PyTorch, CUDA device + VRAM,
+  and Apple MPS, and computes the device the labs will actually use.
+- **Two data modes.** *Online* exercises the real `load_dataset` downloads that
+  students hit. *Offline* installs synthetic stand-ins (`stubs.py`) that mirror the
+  Hugging Face `Dataset` indexing contract exactly — so air-gapped runs still catch
+  API-misuse bugs instead of hiding them.
+- **Isolation + timeouts.** `run_tests.py` runs each lab in its own subprocess, so
+  state never leaks between labs and a hung lab is killed by a per-lab timeout
+  (longer for labs tagged `slow`). Working directories are throwaway temp folders,
+  so checkpoints / PNGs / WAVs never touch the repo.
+- **Headless + reproducible** (`preamble.py`): forces the matplotlib `Agg` backend,
+  neutralises `plt.show()`, and seeds Python/NumPy/Torch before each lab.
+- **Markers** (`network`, `slow`, `extra_deps`) are derived per lab in `manifest.py`
+  so you can include/exclude categories.
+
+### Detailed harness architecture
+
+```mermaid
+flowchart TD
+    subgraph Detect["1 · Detect environment"]
+        SYS["system.detect()<br/>OS · torch · CUDA name+VRAM · MPS<br/>→ lab_device = cuda|cpu"]
+        NET{"network<br/>reachable?"}
+    end
+
+    subgraph Discover["2 · Discover & classify labs"]
+        DISC["manifest.discover()<br/>glob course/labs/phase-*/section-*.md"]
+        FLAGS["per-lab flags<br/>network = contains load_dataset<br/>extra = sklearn / soundfile<br/>slow = curated set"]
+        DISC --> FLAGS
+    end
+
+    subgraph Mode["3 · Choose data mode"]
+        ON["ONLINE<br/>real datasets + tiktoken"]
+        OFF["OFFLINE<br/>stubs.install_offline_stubs()<br/>FakeDataset · byte-level tokenizer"]
+    end
+
+    subgraph Exec["4 · Execute one lab (per subprocess)"]
+        EX["exec_lab.py → core.run_lab()"]
+        PRE["exec preamble<br/>Agg · seeds · plt.show=noop"]
+        CELLS["extract.extract_cells()<br/>ordered python code cells"]
+        LOOP["for cell in cells:<br/>exec in shared namespace<br/>chdir → temp workdir"]
+        EX --> PRE --> CELLS --> LOOP
+    end
+
+    subgraph Report["5 · Aggregate"]
+        RES["LabResult<br/>pass | fail(cell#, traceback) | timeout"]
+        SUM["summary table + exit code<br/>(non-zero if any fail)"]
+        RES --> SUM
+    end
+
+    SYS --> NET
+    NET -- yes --> ON
+    NET -- no --> OFF
+    FLAGS --> EX
+    ON --> EX
+    OFF --> EX
+    LOOP --> RES
+
+    PYTEST["pytest test_labs.py<br/>(in-process, markers)"] -. alternative front-end .-> EX
+```
+
+### Interpreting results
+
+- `PASS` — every cell in the lab executed without raising.
+- `FAIL` — a cell raised; the report shows the cell index, exception type/message,
+  and (in pytest) the cell source plus traceback.
+- `TIME` — the lab exceeded its timeout (raise `--timeout`, or it may indicate a hang).
+
+For full-fidelity validation before teaching, run on the RTX 3080 box in online mode:
+`python tests/run_tests.py --online --jobs 1`. Use `--quick` on the laptop for a fast
+sanity check that skips the heavy training labs (which are slow on CPU but fast on GPU).
 
 ---
 

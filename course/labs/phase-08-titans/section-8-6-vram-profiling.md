@@ -126,7 +126,9 @@ print("-" * 55)
 base_cost = bytes_to_mb(model_bytes) + bytes_to_mb(optimizer_bytes(model_bytes // 2))
 titans_fixed = bytes_to_mb(titans_mem_bytes)
 
-seq_lengths = [512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072]
+# Push far enough that the linearly-growing KV cache actually crosses 10 GB.
+seq_lengths = [512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
+               131072, 262144, 524288, 1048576]
 kv_costs = []
 titans_costs = []
 
@@ -143,7 +145,9 @@ for seq_len in seq_lengths:
     print(f"{seq_len:<12,} {total_kv:<16.1f} {total_titans:<14.1f} {ratio:.1f}x{over_budget}")
 
 print(f"\nBudget: 10,000 MB (10 GB)")
-print(f"Static KV exceeds budget at ~{next((s for s, c in zip(seq_lengths, kv_costs) if c > 10000), 'never'):,} tokens")
+exceed_at = next((s for s, c in zip(seq_lengths, kv_costs) if c > 10000), None)
+exceed_str = f"{exceed_at:,}" if exceed_at is not None else "never (within tested range)"
+print(f"Static KV exceeds budget at ~{exceed_str} tokens")
 print(f"Titans never exceeds budget (constant memory)")
 ```
 
@@ -280,7 +284,8 @@ class CapstoneModel(nn.Module):
         self.tok_emb = nn.Embedding(vocab_size, d_model)
         self.pos_emb = nn.Embedding(1024, d_model)
         self.layers = nn.ModuleList()
-        self.memories = nn.ModuleList()
+        # Memories are raw Parameters (not Modules), so use a ParameterList.
+        self.memories = nn.ParameterList()
 
         for _ in range(n_layers):
             self.layers.append(nn.TransformerEncoderLayer(

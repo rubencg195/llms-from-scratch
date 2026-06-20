@@ -107,7 +107,10 @@ def merge_pair(pair, word_freqs):
     return new_word_freqs
 
 # Build corpus: each word represented as space-separated characters
-corpus_text = " ".join(row["text"][:200] for row in ds[:100])
+# Note: index rows one-by-one (ds[i] -> dict). A slice like ds[:100] returns a
+# dict of columns, not a list of rows, so we iterate by integer index instead.
+n_docs = min(100, len(ds))
+corpus_text = " ".join(ds[i]["text"][:200] for i in range(n_docs))
 words = corpus_text.lower().split()
 word_freq_raw = Counter(words)
 
