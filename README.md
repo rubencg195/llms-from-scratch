@@ -150,12 +150,22 @@ llms-from-scratch/
     │   ├── phase-00-bridging-the-gap.md
     │   ├── phase-01-dense-core.md
     │   └── … phase-08-titans.md
-    └── labs/                          ← Jupytext light markdown (→ .ipynb)
-        ├── phase-00-bridging-the-gap/
-        │   ├── section-0-1-tensors.md
-        │   └── …
-        └── phase-08-titans/
-            └── section-8-6-vram-profiling.md
+    ├── labs/                          ← Jupytext light markdown (→ .ipynb)
+    │   ├── phase-00-bridging-the-gap/
+    │   │   ├── section-0-1-tensors.md
+    │   │   └── …
+    │   └── phase-08-titans/
+    │       └── section-8-6-vram-profiling.md
+    └── interactive/                   ← Gamified browser app (React + Tailwind + Three.js)
+        ├── package.json
+        ├── index.html
+        └── src/
+            ├── data/curriculum.ts     ← 9 phases × interactive modules
+            ├── content.ts             ← loads all lectures + labs from ../lectures & ../labs
+            ├── store/progress.ts      ← XP, levels, streaks, achievements, reads
+            ├── components/Markdown.tsx ← markdown + math + code renderer
+            ├── pages/                 ← journey map, phase, lecture, lab, module, trophies
+            └── modules/phaseXX/*.tsx   ← one playground per concept
 ```
 
 ---
@@ -511,6 +521,137 @@ flowchart TD
 For full-fidelity validation before teaching, run on the RTX 3080 box in online mode:
 `python tests/run_tests.py --online --jobs 1`. Use `--quick` on the laptop for a fast
 sanity check that skips the heavy training labs (which are slow on CPU but fast on GPU).
+
+---
+
+## Interactive playground (gamified)
+
+`course/interactive/` is a browser app that contains **the entire course** — all **9
+lectures**, all **39 lab sections**, and **23 playable, gamified mini-apps** — in one place.
+It is designed especially for students who learn better by poking at something than by
+reading. No JupyterLab, no GPU, no install of the Python stack: it runs entirely
+client-side and every concept builds intuition *before* the student opens the matching lab.
+
+The lecture and lab markdown is read straight from `course/lectures/` and `course/labs/`
+(bundled at build time via Vite's `import.meta.glob`), so the website is always in sync with
+the source material — there is no duplicated content to maintain:
+
+- **Lectures** render as a keyboard-navigable **slide reader** (← / → arrows, progress bar,
+  collapsible speaker notes) — one deck per phase.
+- **Labs** render as fully formatted reading pages with LaTeX math (KaTeX), GitHub tables,
+  and syntax-styled Python code cells — the exact code students run in JupyterLab.
+- **Playgrounds** are the interactive "expand" layer that makes each concept tangible.
+
+Every phase page lays out the suggested flow: **watch the lecture → play the concepts → do
+the labs.**
+
+It is built with **React + TypeScript + Vite**, styled with **Tailwind CSS v4**, animated
+with **Framer Motion**, renders content with **react-markdown + remark-gfm + KaTeX**, and
+uses **Three.js** (via React Three Fiber) *only* where 3D genuinely helps (the
+embedding-space module) — everything else is fast 2D SVG/canvas.
+
+### Run it
+
+```bash
+cd course/interactive
+npm install
+npm run dev        # http://localhost:5173
+npm test           # Vitest unit + component tests
+npm run test:watch # re-run tests on file changes
+# or: npm run build && npm run preview   (static build in dist/)
+```
+
+### Testing the interactive app
+
+Vitest + React Testing Library cover the gamification store, content loader, curriculum,
+routing, and key UI surfaces:
+
+| Area | What is verified |
+|------|------------------|
+| `src/store/progress.ts` | XP, streaks, achievements, journey stats, `localStorage` persist/rehydrate |
+| `src/content.ts` | All 9 lectures + 39 labs load from markdown |
+| `src/data/curriculum.ts` | Phase/module structure, XP totals |
+| `src/modules/registry.tsx` | Every curriculum module has a playground component |
+| `src/lib/math.ts` | Shared math helpers |
+| `src/App.tsx` + pages | Routing (home, phase, lab, trophies), journey map, reset |
+
+Progress is stored under the key `llms-interactive-progress` in `localStorage`; tests use an
+in-memory storage shim so runs are isolated and do not touch your browser profile.
+
+The production build is fully static (relative `base`), so `dist/` can be dropped on any
+static host or opened behind a simple file server.
+
+### Gamification
+
+- **XP + levels** — playgrounds award XP the first time you reach their "aha" interaction; reading a lecture (+20) or opening a lab (+10) also grants XP. Levels scale up a curve.
+- **Achievements & streaks** — unlock trophies (first module, finish a phase, 3-day streak, open a 3D scene, reach level 5, complete everything) with confetti + chime.
+- **Journey map** — the home screen is a phase-by-phase map showing each phase's lecture, lab count, playground count, and progress ring.
+- **Persistence** — all progress is saved to `localStorage`; nothing leaves the device.
+- **Animated transitions** between phases, sections, and modules for a smooth, game-like flow.
+
+### The 23 playgrounds (mapped to the course)
+
+| Phase | Interactive modules |
+|-------|---------------------|
+| 0 — Bridging the Gap | Tensor Explorer · Dot-Product Radar · Gradient-Descent Arcade · Fit-the-Line |
+| 1 — Dense Core | Tokenizer Lab · **Embedding Galaxy (3D)** · RoPE Rotator · Attention Spotlight |
+| 2 — Instruction Tuning | Chat-Template Builder · Masked-Loss Painter · Tool-Call Simulator |
+| 3 — QAT | Bit Crusher (quantization grid) · Straight-Through Estimator |
+| 4 — MoE | Token Router · Load-Balance Juggler |
+| 5 — TurboQuant | KV-Cache Meter · PolarQuant Spinner |
+| 6 — Multimodal | Patchify Studio · Modality Mixer |
+| 7 — Audio | Waveform → Tokens · Barge-In Booth |
+| 8 — Titans | Surprise-o-Meter · Neural Memory Vault · O(1) vs Linear |
+
+Each module mirrors a specific lab section (shown in-app) and ends with a plain-language
+"Key insight" tying the interaction back to the concept.
+
+### Architecture
+
+```mermaid
+flowchart TD
+    DATA["data/curriculum.ts<br/>9 phases × modules (+ XP, colors, icons)"]
+    CONTENT["content.ts<br/>import.meta.glob → all lectures + labs<br/>(front matter, slides, titles parsed)"]
+    SRC["course/lectures/*.md<br/>course/labs/**/section-*.md"]
+    STORE["store/progress.ts (Zustand + localStorage)<br/>XP · levels · streaks · achievements · reads"]
+
+    subgraph Pages["Routed pages (HashRouter + Framer Motion)"]
+        HOME["Home — journey map"]
+        PHASE["Phase — lecture + labs + playgrounds"]
+        LEC["LecturePage — slide reader"]
+        LAB["LabPage — rendered lab + code"]
+        MODPAGE["ModulePage — hosts one playground"]
+        TROPHY["Trophies — achievements"]
+    end
+
+    MD["components/Markdown.tsx<br/>react-markdown + remark-gfm + KaTeX"]
+    REG["modules/registry.tsx<br/>lazy-loads each playground (code-split)"]
+    MODS["modules/phaseXX/*.tsx<br/>self-contained activities → onDiscover()"]
+    THREE["Three.js / R3F<br/>(only the 3D Embedding Galaxy chunk)"]
+
+    SRC --> CONTENT
+    DATA --> HOME --> PHASE
+    CONTENT --> PHASE
+    PHASE --> LEC
+    PHASE --> LAB
+    PHASE --> MODPAGE
+    CONTENT --> LEC & LAB
+    LEC & LAB --> MD
+    DATA --> REG --> MODPAGE
+    REG --> MODS
+    MODS -. "onDiscover()" .-> MODPAGE
+    MODPAGE -- "award XP + confetti" --> STORE
+    LEC & LAB -- "markRead() + XP" --> STORE
+    STORE --> TROPHY
+    MODS -. "3D only" .-> THREE
+```
+
+Modules never touch the store directly — they emit a single `onDiscover()` when the student
+hits the key insight, and the host page converts that into XP, a confetti burst, and a
+celebratory chime. Lecture and lab pages call `markRead()` to award reading XP once. This
+keeps each piece small, self-contained, and easy to extend: add an entry to `curriculum.ts`
+and a component to `modules/`, and it appears on the map — while lecture/lab content flows
+in automatically from the markdown sources.
 
 ---
 
