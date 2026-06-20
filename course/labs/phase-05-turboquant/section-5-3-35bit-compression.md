@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Pack quantized KV values at 3.5 bits/elem (conceptual nibble packing) and decompress for attention.
 
+## What You Need to Know First
+
+This section turns the rotated, quantized values from Section 5.2 into a tightly packed cache. Everything builds on what you have seen:
+
+- **Bits and bytes** — 1 byte = 8 bits; fewer bits per value means a smaller cache. FP16 uses 16 bits per number.
+- **Quantization and the PolarQuant rotation** from Section 5.2.
+- **A "nibble"** — half a byte, i.e. 4 bits; "nibble packing" just means storing small codes in those 4-bit slots.
+- **k-means clustering** — a simple way to find a handful of representative values (centroids) that the data clusters around; we then store the *index* of the nearest centroid instead of the full number.
+
+No outside knowledge required — just basic counting and the idea of "round each value to the nearest allowed level."
+
 ## The Memory Savings Story
 
 Going from FP16 (16 bits) to 3.5 bits per element is a **~4.57× compression** ratio:
@@ -306,6 +317,10 @@ plt.show()
 
 ---
 
+## Where This Leads Next
+
+You can now compress the KV cache about 4.5× — but saving memory is only useful if the model still works. **Section 5.4** puts TurboQuant to the test with the Needle-in-a-Haystack benchmark, checking whether the model can still find a specific fact buried in an 8,000-token prompt after compression.
+
 ## Key Takeaway
 
 3.5-bit KV cache compression achieves ~4.5× memory savings over FP16, enabling significantly
@@ -315,3 +330,10 @@ than on a uniform grid. The per-head rotation matrix from PolarQuant (Section 5.
 outliers don't degrade quantization quality. During attention, compressed KV entries are
 decompressed on-the-fly — only the compressed codes persist in GPU memory, while the
 decompressed tensors exist only for the duration of a single attention computation.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Chee et al. (2023). *QuIP: 2-Bit Quantization of Large Language Models With Guarantees*. NeurIPS.
+- Liu et al. (2024). *KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache*. ICML.

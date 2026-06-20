@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Implement `NeuralMemory` with read/write paths and separate fast weights updated at test time.
 
+## What You Need to Know First
+
+This section codes the memory module. Everything it leans on is already in your toolkit:
+
+- **From Section 8.1:** the memory is a small set of weights we can update *during* inference (Test-Time Training).
+- **`nn.Linear` and `nn.Parameter`** — `nn.Parameter` is just a tensor the module treats as a learnable weight; here the memory matrix is one big parameter.
+- **Matrix multiplication and softmax** — reading the memory is "multiply the query by the matrix, softmax the result" — the same attention-style math from Phase 3.
+- **Outer product** — multiplying a column vector by a row vector to get a matrix; we use it to "write" a key→value association into the memory.
+
+Only high-school-level linear algebra (multiply, average) is needed.
+
 ## A Tiny Network Inside the Network
 
 The neural memory module is a small MLP whose weights serve as associative storage. Unlike
@@ -295,6 +306,12 @@ The memory provides long-term context that doesn't grow with sequence length.
 
 ---
 
+## Where This Leads Next
+
+Our memory writes on *every* call, which quickly saturates it. Section 8.3 adds the missing
+piece of intelligence: a "surprise" gate that decides *when* a fact is worth writing — so the
+model only spends a memory write on genuinely new information.
+
 ## Key Takeaway
 
 The neural memory module is a fixed-size associative store encoded as a weight matrix.
@@ -303,3 +320,10 @@ surprise-gated outer-product updates. Capacity is bounded by $d_{mem}$ (the matr
 after which old facts interfere with new ones — motivating the decay mechanism in Section 8.4.
 Unlike a KV cache that grows to gigabytes, this memory stays at $d_{mem}^2 \times 4$ bytes
 regardless of conversation length.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Graves, Wayne, & Danihelka (2014). *Neural Turing Machines*. arXiv:1410.5401.
+- Behrouz, Zhong, & Mirrokni (2024). *Titans: Learning to Memorize at Test Time*. arXiv:2501.00663.

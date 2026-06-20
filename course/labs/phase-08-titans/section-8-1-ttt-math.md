@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Perform one gradient step on a tiny memory network at inference time when prediction error is high.
 
+## What You Need to Know First
+
+Phase 8 reuses the training tools you already know — now applied at an unexpected time. You need:
+
+- **Gradient descent and a "gradient step"** — from the training phases: compute how wrong a prediction is (the loss), then nudge the weights in the direction that lowers it. That's all an "inner-loop step" is.
+- **`nn.Linear` / a small MLP** — a tiny network whose weights we'll treat as the model's notepad.
+- **Training time vs inference time** — normally weights freeze after training; the twist here is updating a few weights *during* inference (while chatting).
+- **KV cache (from the attention phases)** — the running store of past tokens that lets attention look back; here it's the thing we're trying to replace with something fixed-size.
+
+The notation $\nabla_{\theta}\mathcal{L}$ just means "the gradient of the loss with respect to the weights" — the direction to nudge them.
+
 ## What If the Model Could Learn During the Conversation?
 
 This is the radical idea behind Test-Time Training (TTT): instead of treating model weights
@@ -297,6 +308,12 @@ print(f"\n  Without clipping, the large input would update weights by {norm2:.1f
 
 ---
 
+## Where This Leads Next
+
+We've shown a memory network *can* learn during inference, but we used a bare MLP. Section 8.2
+turns that idea into a proper, reusable `NeuralMemory` module with clean read and write paths —
+the actual building block the rest of Phase 8 plugs into.
+
 ## Key Takeaway
 
 Test-Time Training is a paradigm shift: the model's memory network *learns during inference*
@@ -305,3 +322,10 @@ new information into fixed-size parameters rather than appending to a growing KV
 The cost is modest (~1ms/token for d=64) but the benefit is profound: O(1) memory for
 arbitrarily long contexts. Combined with surprise gating (Section 8.3), only genuinely
 novel information triggers writes — mundane tokens pass through without updating the memory.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Sun et al. (2024). *Learning to (Learn at Test Time): RNNs with Expressive Hidden States*. arXiv:2407.04620.
+- Finn, Abbeel, & Levine (2017). *Model-Agnostic Meta-Learning (MAML)*. ICML.

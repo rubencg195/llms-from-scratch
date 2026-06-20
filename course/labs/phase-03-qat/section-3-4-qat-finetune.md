@@ -14,6 +14,19 @@ kernelspec:
 
 **Goal:** Alternate TinyStories + Glaive batches while QAT-wrapped layers stay trainable; compare perplexity before and after quantization.
 
+## What You Need to Know First
+
+This is the Phase 3 capstone. It combines the QAT pieces from 3.1–3.3 with the training loop from Phase 1.
+
+- **QAT (Quantization-Aware Training)** — training the model *while* simulating quantization, so its weights learn to tolerate rounding (Sections 3.1–3.3).
+- **STE and fake quant** — the STE-enabled `FakeQuantSTE` module that lets gradients flow through `round()` (Section 3.3).
+- **A training loop** — predict, measure loss, `backward()`, `optimizer.step()`, repeat (Phase 1).
+- **Perplexity** — a quality score for language models, computed as `e^(cross-entropy)`. Lower is better; think of it as "how surprised the model is."
+- **Catastrophic forgetting** — when training on new data makes a model *lose* an earlier skill; alternating datasets is our defense.
+- **TinyStories and Glaive** — two datasets (simple stories for fluency, tool-call examples for structure) we interleave to keep both skills.
+
+If you followed the earlier Phase 3 sections, you have everything required here.
+
 ## Why Alternating Datasets Matters
 
 Catastrophic forgetting is the biggest risk when specializing a model. If you only train on quantization-friendly data, the model may lose its language ability. By alternating between TinyStories (grammar, fluency) and Glaive (tool-calling structure), we preserve both skills while the weights learn to tolerate rounding.
@@ -283,6 +296,10 @@ if device == "cuda":
     print("Peak VRAM (MB):", torch.cuda.max_memory_allocated() / 1e6)
 ```
 
+## Where This Leads Next
+
+This completes Phase 3: you can now shrink a model with quantization while keeping its quality close to the original. Phase 4 takes a different angle on efficiency with **Mixture of Experts (MoE)** — growing the model's capacity without proportionally growing its per-token compute cost.
+
 ---
 
 ## Key Takeaway
@@ -294,3 +311,11 @@ if device == "cuda":
 - The 4-bit vs 8-bit trade-off is the core deployment decision: more compression means slightly worse quality, but fits on cheaper hardware.
 
 **Next:** Phase 4 — Mixture of Experts, where we make the model smarter without making it slower.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Dettmers et al. (2022). *LLM.int8()*. NeurIPS.
+- Frantar et al. (2022). *GPTQ*. arXiv:2210.17323.
+- Lin et al. (2023). *AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration*. arXiv:2306.00978.

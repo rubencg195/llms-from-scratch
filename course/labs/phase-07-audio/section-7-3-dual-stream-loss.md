@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Joint heads for audio codebook logits and VAD/interrupt tags; combine losses.
 
+## What You Need to Know First
+
+This section combines two prediction tasks into one model — using only ideas you already have:
+
+- **From Sections 7.1–7.2:** audio is now integer tokens, and the conversation has control tags (states like `AI_SPEAKING` or `INTERRUPT`).
+- **A "head"** — just a final `nn.Linear` layer that maps the model's hidden vector to scores ("logits") over a set of choices. Here we attach two heads to the same body.
+- **Cross-entropy loss** — the standard loss for picking one correct class out of many; you used it for next-token prediction.
+- **Logits vs probabilities** — raw scores are "logits"; a softmax turns them into probabilities that sum to 1.
+
+If those are familiar, the rest is just adding the two losses together.
+
 ## Why Two Heads?
 
 A full-duplex audio model must predict two fundamentally different things at each time step:
@@ -135,7 +146,10 @@ for i in range(0, sequence_len, 5):
 
 ## Tag Accuracy vs Audio Quality — Different Metrics
 
-The two heads need different evaluation metrics because they solve different problems:
+The two heads need different evaluation metrics because they solve different problems.
+Two terms used below: **perplexity** is just `exp(loss)` — a "how surprised was the model"
+score where lower is better — and **recall** for the INTERRUPT tag means "of all the real
+interrupts, what fraction did we catch?"
 
 ```python
 def evaluate_dual_stream(model_head, hidden_states, audio_targets, tag_targets):
@@ -286,6 +300,12 @@ print("  alpha=1.0: Tag head over-weighted, may hurt audio quality")
 
 ---
 
+## Where This Leads Next
+
+The model can now predict both sound and conversation state at every step. Section 7.4 puts
+this to work in real time: a streaming "barge-in" loop that watches the INTERRUPT tag each
+80ms frame and stops the AI mid-sentence the moment the user starts talking.
+
 ## Key Takeaway
 
 The dual-stream loss is the architectural key to full-duplex audio: one head predicts
@@ -294,3 +314,10 @@ The dual-stream loss is the architectural key to full-duplex audio: one head pre
 task from dominating gradients. Train both heads jointly, but evaluate them with different
 metrics — perplexity for audio quality, accuracy/recall for tag prediction. The INTERRUPT
 tag recall is the safety-critical metric: missing an interrupt means talking over the user.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Borsos et al. (2022). *AudioLM: a Language Modeling Approach to Audio Generation*. arXiv:2209.03143.
+- Défossez et al. (2024). *Moshi*. arXiv:2410.00037.

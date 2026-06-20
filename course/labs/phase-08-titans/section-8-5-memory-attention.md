@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Concatenate or add neural memory readout to attention context before the output projection.
 
+## What You Need to Know First
+
+This section wires the memory into a transformer block. You already have the pieces:
+
+- **The transformer block (Phase 1/3):** LayerNorm → self-attention → feed-forward, with residual ("add the input back") connections.
+- **From Section 8.2:** `NeuralMemory.read()` returns a context vector from the long-term memory matrix.
+- **Sigmoid gate** — `sigmoid` squashes any number into 0–1; multiplying the memory output by this gate lets the model learn *how much* to trust memory (0 = ignore, 1 = full).
+- **Residual connections** — adding a layer's output back to its input; we add the gated memory the same way.
+
+That's it — combining the streams is just addition with a learned dial.
+
 ## Three Streams of Context
 
 A Titans block has access to three sources of information, each operating at a different
@@ -338,6 +349,12 @@ print("High initialization forces memory reliance before it's trained → slower
 
 ---
 
+## Where This Leads Next
+
+The full Titans block is assembled — attention plus gated neural memory. Section 8.6 is the
+capstone: we profile actual VRAM as the conversation grows, proving the central claim that this
+architecture keeps memory *constant* and fits 100K+ token contexts on a single 10 GB GPU.
+
 ## Key Takeaway
 
 The Titans block merges three information streams through a single learned gate: attention
@@ -346,3 +363,10 @@ context (facts from the entire conversation), and model weights provide permanen
 The sigmoid gate starts near 0, allowing the model to learn *when* memory is useful rather
 than always relying on it. This architecture keeps VRAM constant regardless of sequence
 length — the memory matrix is the same size whether the conversation is 100 or 100,000 tokens.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Behrouz, Zhong, & Mirrokni (2024). *Titans: Learning to Memorize at Test Time*. arXiv:2501.00663.
+- Katharopoulos et al. (2020). *Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention*. ICML.

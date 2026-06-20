@@ -14,6 +14,15 @@ kernelspec:
 
 **Goal:** Implement Rotary Position Embeddings: apply 2D rotations to paired dimensions based on token position.
 
+## What You Need to Know First
+
+- **Embeddings as vectors** (Section 1.2) — RoPE adjusts the very vectors you just learned to build.
+- **The dot product as similarity** (Section 0.2) — RoPE's key trick is what it does to dot products between tokens.
+- **Tensor slicing and shapes** (Section 0.1) — we split vectors into pairs and recombine them.
+- **High-school picture of rotating an arrow / sine and cosine** — just the intuition that spinning an arrow keeps its length but changes its direction.
+
+These all come from earlier sections, so no outside knowledge is required. New terms like *positional encoding* and *relative position* are explained inline. (A **positional encoding** is extra information added to each token's vector that says *where* in the sentence the token appears.)
+
 ## Why Position Matters
 
 Consider these two sentences:
@@ -215,6 +224,10 @@ print(f"Norms preserved: {max_diff < 1e-5}")
 print("\n✓ RoPE is norm-preserving (it's a rotation, not a scaling)")
 ```
 
+## Where This Leads Next
+
+You now have position-aware Q and K vectors. Section 1.4 (**attention**) is where they finally get used: each token's query is compared (via dot product) against every other token's key to decide "which words should I pay attention to?" RoPE is what makes those comparisons aware of word order.
+
 ## Key Takeaway
 
 - **Position information** is essential: without it, "dog bites man" and "man bites dog" are indistinguishable to attention.
@@ -226,3 +239,10 @@ print("\n✓ RoPE is norm-preserving (it's a rotation, not a scaling)")
 ## Checkpoint
 
 You understand how RoPE encodes position through rotation. Next: **attention** (Section 1.4) — where Q, K, V come together to compute "which tokens matter."
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Su et al. (2021). *RoFormer: Enhanced Transformer with Rotary Position Embedding*. arXiv:2104.09864.
+- Vaswani et al. (2017). *Attention Is All You Need* (sinusoidal positions). NeurIPS.

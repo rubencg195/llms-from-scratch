@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Gate memory writes on surprise threshold; skip TTT when prediction is confident.
 
+## What You Need to Know First
+
+This section decides *when* to write to memory. The prerequisites are small:
+
+- **From Sections 8.1–8.2:** writing to memory means a Test-Time-Training step, which costs compute — so we don't want to do it every token.
+- **"Surprise" = prediction error** — simply how far the model's prediction was from the truth (here, mean squared error). Big error = surprising.
+- **A threshold / gate** — a cutoff value; if surprise is above it, we write, otherwise we skip.
+- **Exponential moving average (EMA)** — a running average that gently follows recent values, used so the threshold adapts to how hard the current text is. `new = (1-α)·old + α·latest`.
+
+No new math beyond squaring a difference and taking a running average.
+
 ## Learning from Surprise — The Brain Does This Too
 
 Neuroscience tells us that the brain doesn't memorize *everything* — it selectively encodes
@@ -303,6 +314,12 @@ print("  but the novel fact at 2.5 still exceeds the adapted threshold.")
 
 ---
 
+## Where This Leads Next
+
+We can now decide *what* to remember. Section 8.4 handles the opposite problem — *forgetting*.
+It adds decay and momentum so old, unreinforced facts fade away, keeping the fixed-size memory
+from filling up and turning into noise.
+
 ## Key Takeaway
 
 The surprise metric transforms TTT from "learn everything" to "learn what matters."
@@ -312,3 +329,10 @@ expensive inner-loop gradient step. Repeated or predictable content passes throu
 modifying the memory. This mirrors biological learning: the hippocampus encodes surprising
 events, not routine ones. The adaptive EMA threshold automatically calibrates to content
 difficulty — technical papers have higher baseline surprise than casual chat.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Behrouz, Zhong, & Mirrokni (2024). *Titans: Learning to Memorize at Test Time*. arXiv:2501.00663.
+- Itti & Baldi (2009). *Bayesian Surprise Attracts Human Attention*. Vision Research.

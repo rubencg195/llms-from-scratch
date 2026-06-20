@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Add learnable row/column embeddings to patch tokens before mixing with text.
 
+## What You Need to Know First
+
+You've already met every building block this section needs — nothing external is required:
+
+- **From Section 6.2:** an image becomes a grid of patches, and each patch is projected to a `d_model`-length vector.
+- **Position embeddings** — the same trick you saw for text: because a transformer has no built-in sense of order, we *add* a small vector to each token that encodes its location.
+- **`nn.Embedding`** — a lookup table that turns an integer index (like row 0, column 2) into a learned vector.
+- **Cosine similarity** — a number from -1 to 1 measuring how "aligned" two vectors are; 1 means identical direction, 0 means unrelated.
+
+If those ring a bell, you're set.
+
 ## Without Position Info, the Model Sees a Bag of Patches, Not a Grid
 
 Consider the caption "the cat is on the **left** side of the image." Without spatial
@@ -60,9 +71,10 @@ print("corner vs center diff:", (y[0] - y[4]).norm().item())
 
 ## Approach 2: Fixed Sinusoidal 2D Position Embeddings
 
-Sinusoidal embeddings have a key advantage: they can be computed for *any* grid resolution
-without retraining. This is the same idea as 1D sinusoidal embeddings from "Attention Is
-All You Need," extended to two spatial dimensions.
+Sinusoidal embeddings (position vectors built from sine and cosine waves of different
+frequencies, so each location gets a unique fixed pattern) have a key advantage: they can be
+computed for *any* grid resolution without retraining. This is the same idea as 1D sinusoidal
+embeddings from "Attention Is All You Need," extended to two spatial dimensions.
 
 ```python
 import numpy as np
@@ -300,6 +312,12 @@ print(f"  Gap (should be positive):  {np.mean(adj_sims) - np.mean(dist_sims):.4f
 
 ---
 
+## Where This Leads Next
+
+We now have image patches that are both projected to `d_model` *and* tagged with their grid
+position. Section 6.4 finally combines them with text: we stitch image vectors and text token
+vectors into one sequence and run it through the transformer backbone you built in Phase 1.
+
 ## Key Takeaway
 
 Spatial position embeddings transform an orderless bag of patch tokens into a structured
@@ -307,3 +325,10 @@ grid. The model learns that position (0,0) is "top-left" and position (2,2) is "
 enabling spatial reasoning in captions. Learnable embeddings are simple and effective for
 fixed resolutions; sinusoidal embeddings generalize across resolutions without retraining.
 Either way, the signal lets captions like "cat on the **left**" align with patch geometry.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Vaswani et al. (2017). *Attention Is All You Need* (positional encodings). NeurIPS.
+- Dosovitskiy et al. (2020). *An Image is Worth 16x16 Words (ViT)* (2D position embeddings). ICLR.

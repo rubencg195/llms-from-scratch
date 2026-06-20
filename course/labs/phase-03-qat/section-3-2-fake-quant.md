@@ -14,6 +14,18 @@ kernelspec:
 
 **Goal:** Wrap `quantize → dequantize` in an `nn.Module` applied to activations and weights during forward pass.
 
+## What You Need to Know First
+
+This builds directly on Section 3.1 and the PyTorch module basics from Phase 1.
+
+- **Quantize and dequantize** (Section 3.1) — round a float onto the integer grid, then map it back to a float that is *close* but not identical.
+- **`nn.Module`** — PyTorch's standard wrapper for a reusable layer; it has a `forward()` method that runs when you call it. You used these in Phase 1.
+- **Activations vs weights** — weights are the learned numbers stored in the model; activations are the temporary numbers that flow through it as data passes forward.
+- **Calibration** — measuring typical value ranges over several batches so our scale/zero-point are stable instead of jumpy.
+- **Outliers** — rare, extreme values that stretch the range and hurt quantization (introduced in Section 3.1).
+
+No calculus is needed yet — that arrives in Section 3.3.
+
 ## "Fake" vs "Real" Quantization
 
 There are two distinct stages of quantization in practice:
@@ -313,6 +325,10 @@ print(f"  Min-Max MSE:     {(clean_data - recon_clean_mm).pow(2).mean().item():.
 print(f"  Percentile MSE:  {(clean_data - recon_clean_pct).pow(2).mean().item():.6f}")
 ```
 
+## Where This Leads Next
+
+Our fake-quant module works in the forward pass, but there is a hidden problem: `round()` blocks gradients, so the model cannot learn through it. Section 3.3 introduces the **Straight-Through Estimator (STE)**, the gradient trick that makes fake quantization trainable.
+
 ---
 
 ## Key Takeaway
@@ -326,3 +342,10 @@ Fake quantization is the **training-time simulation** of low-precision inference
 5. **FP32 in memory** — fake quant doesn't save memory during training; the savings come only at deployment when weights are actually stored as integers
 
 The next section introduces the **Straight-Through Estimator (STE)** — the gradient trick that makes fake quantization differentiable so we can actually backpropagate through the rounding operation.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Jacob et al. (2018). *Quantization and Training of Neural Networks ...*. CVPR.
+- Krishnamoorthi (2018). *Quantizing deep convolutional networks for efficient inference: A whitepaper*. arXiv:1806.08342.

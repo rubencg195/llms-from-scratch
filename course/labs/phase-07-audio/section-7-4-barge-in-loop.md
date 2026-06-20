@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Streaming decode loop that stops AI audio generation when `<INTERRUPT>` tag probability spikes.
 
+## What You Need to Know First
+
+This section is the real-time payoff of Phase 7. The background is light:
+
+- **From Sections 7.1–7.3:** the model emits an audio token *and* a tag (with an `INTERRUPT` state) at every ~80ms "frame."
+- **Softmax → probabilities** — turning the tag head's logits into probabilities lets us ask "how likely is an interrupt right now?"
+- **`argmax` vs a threshold** — `argmax` picks the single highest-scoring option; a threshold instead fires whenever a probability crosses a value we choose (more tunable).
+- **VAD (Voice Activity Detection)** — a simple check of whether the microphone is picking up speech, usually by measuring loudness (energy).
+
+All of it is basic Python plus one softmax — no new math.
+
 ## The Critical 80ms Window
 
 The codec frame rate determines interrupt latency. At 12.5 Hz (one frame every 80ms),
@@ -327,6 +338,13 @@ print(f"With cooldown=5 frames, only step 5 triggers; 6-10 are suppressed.")
 
 ---
 
+## Where This Leads Next
+
+That completes Phase 7 — our model can see *and* hold a natural, interruptible spoken
+conversation. Phase 8 takes on the final frontier: memory. Section 8.1 begins with Test-Time
+Training, the idea that a model can *learn new facts during a conversation* instead of only at
+training time — the foundation for infinite context on a tiny VRAM budget.
+
 ## Key Takeaway
 
 The barge-in loop is the real-time heart of full-duplex audio: at every 80ms codec frame,
@@ -335,3 +353,10 @@ is interrupting. Probability thresholding (rather than argmax) gives us a tunabl
 knob. Cooldown periods prevent rapid false re-triggers. Graceful degradation (fade-out of
 partially generated audio) ensures clean transitions. The result: sub-100ms interrupt
 latency — faster than human perception.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Défossez et al. (2024). *Moshi* (full-duplex modeling). arXiv:2410.00037.
+- Wang et al. (2023). *Neural Codec Language Models are Zero-Shot Text to Speech Synthesizers (VALL-E)*. arXiv:2301.02111.

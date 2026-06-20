@@ -14,6 +14,16 @@ kernelspec:
 
 **Goal:** Model half-duplex vs full-duplex state machines and identify where `<INTERRUPT>` fires.
 
+## What You Need to Know First
+
+This section is mostly plain Python logic — if you can read a few `if` statements, you're ready. The only background you need:
+
+- **Basic Python classes and `if`/`elif`** — we model conversations as objects that change a `state` variable based on what's happening.
+- **A "state machine"** — just a system that is always in exactly one named state (like `IDLE` or `SPEAKING`) and follows rules for hopping between states. No math required.
+- **Tokens and special tags** — from the text phases, you've seen special marker tokens (like end-of-text). Here `<INTERRUPT>` is the same idea: a control signal the model can emit.
+
+That's everything — no audio or signal-processing knowledge is assumed.
+
 ## Why Current Voice Assistants Feel Robotic
 
 Every voice assistant you've used (Siri, Alexa, Google Assistant) operates in **half-duplex**
@@ -364,6 +374,12 @@ for i, (ua, aws, ve, up) in enumerate(scenarios):
 
 ---
 
+## Where This Leads Next
+
+We now have the *control logic* for a real-time conversation, but the model still needs actual
+sound to emit and consume. Section 7.2 tackles that: how to turn continuous audio waveforms
+into discrete integer tokens — so sound can be modeled with the same next-token machinery as text.
+
 ## Key Takeaway
 
 Full-duplex is not just "faster half-duplex" — it is a fundamentally different communication
@@ -371,3 +387,10 @@ paradigm. By maintaining parallel input and output streams, the model can: (1) r
 one codec frame (~80ms vs ~1350ms), (2) emit backchannels while listening, and (3) be
 interrupted mid-sentence. This requires the model to generate audio tokens *and* control tags
 simultaneously — which is exactly what we build in the next labs.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Défossez et al. (2024). *Moshi: a speech-text foundation model for real-time dialogue*. arXiv:2410.00037.
+- Skantze (2021). *Turn-taking in Conversational Systems and Human-Robot Interaction: A Review*. Computer Speech & Language.

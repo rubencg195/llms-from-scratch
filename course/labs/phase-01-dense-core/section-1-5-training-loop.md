@@ -14,6 +14,15 @@ kernelspec:
 
 **Goal:** Assemble GPT-style model (~80M params), train on TinyStories, and save `phase1_80m.pt`.
 
+## What You Need to Know First
+
+- **The autograd training loop** (Section 0.3) — forward → loss → `backward()` → `optimizer.step()`, used here unchanged at scale.
+- **Tokenization and embeddings** (Sections 1.1–1.2) — to turn TinyStories text into token IDs and vectors.
+- **RoPE and attention** (Sections 1.3–1.4) — the Transformer blocks being trained here are exactly the ones you built.
+- **Softmax** (Section 0.2) — used both inside attention and to turn final scores into next-token probabilities.
+
+Every ingredient was assembled in earlier sections, so nothing new from outside the course is required. New terms like *autoregressive*, *cross-entropy*, and *gradient clipping* are explained inline. (**Autoregressive** just means the model generates one token at a time, each new token depending on the ones already produced.)
+
 ## What Is Autoregressive Language Modeling?
 
 The training objective is simple: **predict the next token**. Given a sequence of tokens $[t_1, t_2, \ldots, t_n]$, the model learns to predict $t_{i+1}$ from $[t_1, \ldots, t_i]$ for every position simultaneously.
@@ -23,7 +32,7 @@ Input:    [The] [cat] [sat] [on] [the]
 Target:   [cat] [sat] [on]  [the] [mat]
 ```
 
-The loss is **cross-entropy** between the model's predicted probability distribution over the vocabulary and the actual next token. This is computed at every position in parallel (thanks to the causal mask hiding future tokens).
+The loss is **cross-entropy** — a standard score that is small when the model puts high probability on the correct next token and large when it is confidently wrong — measured between the model's predicted probability distribution over the vocabulary and the actual next token. This is computed at every position in parallel (thanks to the causal mask hiding future tokens).
 
 At generation time, we sample from the predicted distribution to produce one token at a time — hence "autoregressive."
 
@@ -401,6 +410,10 @@ print("Saved checkpoints/phase1_80m.pt")
 print(f"Checkpoint contains: model weights, optimizer state, vocab, and config")
 ```
 
+## Where This Leads Next
+
+You've trained a complete GPT end-to-end — that closes the loop from "what is a tensor?" all the way to generating text. Phase 2 picks up from this exact checkpoint to **scale things up**: more data, longer training, proper evaluation metrics, and efficiency tricks like mixed-precision and multi-GPU training, so your small but real model grows into a genuinely capable one.
+
 ## Key Takeaway
 
 - **Autoregressive LM training** predicts the next token at every position simultaneously — the causal mask ensures no future information leaks.
@@ -424,3 +437,11 @@ You've built a complete GPT from scratch:
 **Next steps (Phase 2):** Scale up — larger data, longer training, evaluation metrics, and techniques like mixed-precision training and distributed data parallel.
 
 **Instructor note:** For a full training run, increase `max_stories` to the full dataset and train for 10,000+ steps. Expect ~2 hours on an RTX 3080 for noticeable grammar and storytelling ability. VRAM should stay under ~8 GB at batch 8.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Radford et al. (2019). *Language Models are Unsupervised Multitask Learners (GPT-2)*. OpenAI.
+- Eldan & Li (2023). *TinyStories*. arXiv:2305.07759.
+- Loshchilov & Hutter (2017). *SGDR: Stochastic Gradient Descent with Warm Restarts (cosine schedule)*. ICLR.

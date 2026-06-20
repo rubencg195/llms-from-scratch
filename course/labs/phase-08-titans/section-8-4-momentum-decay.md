@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Add exponential decay and momentum to memory updates so old facts fade unless reinforced.
 
+## What You Need to Know First
+
+This section teaches the memory to forget. Background needed is minimal:
+
+- **From Sections 8.2–8.3:** the memory is a fixed-size matrix updated by surprise-gated writes — and fixed size means it can fill up.
+- **Exponential decay** — multiplying a value by something like 0.99 every step makes it shrink smoothly toward zero (`0.99^t`); that's all "decay" means here.
+- **Momentum** — a trick from optimizers you've seen: blend in a bit of the previous update direction to smooth out noisy steps.
+- **Half-life** — the number of steps for a value to shrink to half its strength; handy for describing how fast the memory forgets.
+
+It's all high-school algebra (repeated multiplication) — the neuroscience analogy is just for intuition.
+
 ## Memory Without Forgetting is a Hoarder — Decay is Essential
 
 A memory that never forgets eventually saturates: new facts interfere destructively with
@@ -311,6 +322,12 @@ print("High decay (slow forgetting) + moderate momentum (smooth updates) works b
 
 ---
 
+## Where This Leads Next
+
+The neural memory is now complete: it reads, writes on surprise, and forgets via decay. Section 8.5
+plugs it into the transformer itself — blending the memory readout with normal attention through a
+learned gate, so each layer can draw on both local context and long-term memory.
+
 ## Key Takeaway
 
 Decay prevents infinite accumulation in the memory matrix — without it, the memory saturates
@@ -320,3 +337,10 @@ persist, one-time mentions fade, and boring content is never written. This mirro
 Ebbinghaus forgetting curve from neuroscience, where unrehearsed memories decay exponentially
 but spaced repetition makes them permanent. The optimal decay rate balances retention (high
 decay ≈ long memory) against capacity (low decay ≈ room for new facts).
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Behrouz, Zhong, & Mirrokni (2024). *Titans: Learning to Memorize at Test Time*. arXiv:2501.00663.
+- Qin et al. (2024). *Gated Linear Attention Transformers with Hardware-Efficient Training*. ICML.

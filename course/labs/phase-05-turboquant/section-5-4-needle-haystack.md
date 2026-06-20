@@ -14,6 +14,15 @@ kernelspec:
 
 **Goal:** Build an 8k-token prompt with a hidden fact; verify the model (or retrieval stub) recovers `"cyan"`.
 
+## What You Need to Know First
+
+This section is mostly string handling plus a simple pass/fail check — no new outside knowledge needed:
+
+- **A "prompt"** — the text you feed the model; here it is a very long document plus a question at the end.
+- **A "token" ≈ a word** — for this lab we count words as a rough stand-in for tokens.
+- **The KV cache and TurboQuant** from Sections 5.1–5.3 — the thing we are stress-testing.
+- **An "oracle" / "stub"** — a placeholder that fakes the answer (here, by literally checking whether the fact is in the text) so you can build and test the harness before a real model is wired in.
+
 ## The NIAH Benchmark — Why It Matters
 
 The **Needle-in-a-Haystack (NIAH)** test is one of the most intuitive evaluations for
@@ -93,8 +102,9 @@ print(f"Needle position: {doc.find(NEEDLE)} / {len(doc)} chars ({doc.find(NEEDLE
 
 ## Depth Placement — Testing the Needle at Different Positions
 
-A model might retrieve facts well from the beginning (primacy bias) or end (recency bias)
-but fail in the middle. Testing at multiple depths reveals these blind spots.
+A model might retrieve facts well from the beginning (primacy bias — a tendency to remember the *first* things it saw)
+or end (recency bias — a tendency to remember the *most recent* things) but fail in the middle.
+Testing at multiple depths reveals these blind spots.
 
 ```python
 QUERY = "What is the magic passcode? Answer with one word."
@@ -299,6 +309,10 @@ Log VRAM with `torch.cuda.max_memory_allocated()` — should stay under 10 GB vs
 
 ---
 
+## Where This Leads Next
+
+This is the capstone of Phase 5: you now have the full TurboQuant pipeline and a way to prove it preserves retrieval. From here you can plug a real trained model into the `eval_needle` hook and run the depth × context-length heatmap end-to-end, carrying these long-context, memory-efficient inference skills into the later phases of the course.
+
 ## Key Takeaway
 
 The Needle-in-a-Haystack benchmark tests whether a model can retrieve **specific planted facts**
@@ -309,3 +323,10 @@ TurboQuant's 3.5-bit compression achieves ~4.5× VRAM savings, but the critical 
 whether retrieval accuracy is preserved — especially for needles in the middle of long contexts,
 where attention patterns are weakest. Multi-needle variants increase difficulty and better
 simulate real-world retrieval demands.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Kamradt (2023). *Needle In A Haystack — Pressure Testing LLMs*. (GitHub: gkamradt/LLMTest_NeedleInAHaystack)
+- Liu et al. (2023). *Lost in the Middle: How Language Models Use Long Contexts*. TACL.

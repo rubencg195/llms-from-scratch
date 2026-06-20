@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Profile decode VRAM vs conversation length for static KV vs Titans memory; plot or tabulate results.
 
+## What You Need to Know First
+
+This is the capstone — it measures, not builds. The background is all things you've used before:
+
+- **VRAM accounting (Section 6.1):** GPU memory is spent on model weights, optimizer states, the KV cache, and activations. We add these up in megabytes.
+- **KV cache grows with length** — from the attention phases: storing every past key/value means memory rises *linearly* with the number of tokens.
+- **Titans memory is fixed (Sections 8.2–8.5):** the neural memory matrix is a constant size no matter how long the conversation gets.
+- **"O(1)" vs linear** — "O(1)" just means "stays constant"; "linear" means "grows in proportion to length." That contrast is the whole point of this section.
+
+Only addition, multiplication, and comparing numbers to a 10 GB budget are needed.
+
 ## The Moment of Truth — Does Our Architecture Actually Fit in 10GB?
 
 This is the capstone verification: after building every component (tokenizer, transformer,
@@ -415,6 +426,15 @@ else:
 
 ---
 
+## Where This Leads Next
+
+This is the end of the road — and the end of the course. You started with `y = mx + b` and have
+now assembled a complete multimodal LLM that sees, hears, holds full-duplex conversations, and
+*learns new facts while it talks* — all proven to fit on a single 10 GB GPU. There is no "next
+section" to point to: the next step is yours. Take these building blocks and combine them in new
+ways, swap our toy components for production ones, or dive into the papers below to go deeper.
+You now understand, end to end, how a modern language model actually works.
+
 ## Key Takeaway
 
 The Titans architecture delivers on its promise: **O(1) VRAM for arbitrarily long contexts**.
@@ -424,3 +444,10 @@ with surprise-gated writes, momentum-decayed forgetting, and learned gating, thi
 system that can process 100K+ token conversations on consumer hardware. We've traveled from
 `y = mx + b` to a complete multimodal LLM with infinite context — and every component fits
 on a single 10 GB GPU.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Behrouz, Zhong, & Mirrokni (2024). *Titans: Learning to Memorize at Test Time*. arXiv:2501.00663.
+- Gu & Dao (2023). *Mamba: Linear-Time Sequence Modeling with Selective State Spaces*. arXiv:2312.00752.

@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Build a single sequence `[IMG] patches... [TEXT] tokens...` and run through Phase 1 backbone.
 
+## What You Need to Know First
+
+This is where the last three sections come together — and it only relies on things you've already built:
+
+- **From Sections 6.2–6.3:** image patches are now `d_model`-length vectors with position info, ready to sit next to text.
+- **The transformer backbone (Phase 1)** — the stack of attention + feed-forward layers that processes a sequence of vectors.
+- **Causal attention masking** — the rule that a token may only "look at" itself and earlier tokens, never future ones (you used this for next-token prediction).
+- **Cross-entropy loss and next-token prediction** — training the model to predict the following token, computing loss only where it matters.
+
+With those in hand, mixing the two modalities is mostly bookkeeping.
+
 ## The Key Insight: Images and Text Live in the Same Vector Space
 
 After projection, an image patch and a text token are both just vectors in $\mathbb{R}^{d}$.
@@ -30,8 +41,9 @@ which vectors came from which source, while the core computation remains modalit
 
 ## Modality Indicators
 
-How does the model know which tokens are image vs text? We use a **modality embedding** —
-a small lookup table that adds a learned bias depending on the token's source:
+How does the model know which tokens are image vs text? We use a **modality embedding**
+(a tiny lookup table — one learned vector per source type — added to each token to "tag"
+where it came from):
 
 - ID 0 → image patch
 - ID 1 → text token
@@ -296,6 +308,12 @@ print(" pairs, this would produce meaningful captions)")
 
 ---
 
+## Where This Leads Next
+
+That completes Phase 6: our LLM can now *see*. Phase 7 adds a second new sense — hearing.
+Section 7.1 opens by rethinking how a model holds a real-time spoken conversation, replacing
+rigid "take turns" voice assistants with a full-duplex design that can listen and speak at once.
+
 ## Key Takeaway
 
 Modality mixing is elegantly simple: project image patches and text tokens into the same
@@ -305,3 +323,10 @@ relationships. The training loss applies *only* to text token predictions — th
 learns to "read" the image by learning that certain patch patterns predict certain words.
 Fine-tune with TinyImage-Stories pairs `[image] → caption` and the same LLM that generates
 text now generates text *about images*.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Liu et al. (2023). *Visual Instruction Tuning (LLaVA)*. NeurIPS.
+- Alayrac et al. (2022). *Flamingo: a Visual Language Model for Few-Shot Learning*. NeurIPS.

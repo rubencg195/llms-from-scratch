@@ -14,6 +14,18 @@ kernelspec:
 
 **Goal:** Implement STE so gradients flow through `round()` during QAT.
 
+## What You Need to Know First
+
+This section explains one clever trick. It builds on the fake-quant module from Section 3.2 plus the idea of a gradient from Phase 1.
+
+- **Fake quantization** (Section 3.2) — the `quantize → dequantize` round-trip that includes a `round()` step.
+- **Gradient** — a number telling each weight which way to nudge to lower the loss. "Zero gradient" means the weight gets no instruction and stops learning.
+- **A staircase function** — `round()` is flat between steps and jumps suddenly; "flat" means slope zero, which is exactly the problem.
+- **Forward vs backward pass** — forward computes the output; backward computes gradients. The STE simply uses a *different* rule for each.
+- **`torch.autograd.Function`** — PyTorch's hook for defining custom forward and backward behavior.
+
+The only "math" is recognizing that a flat line has zero slope, and pretending it has slope 1 instead.
+
 ## The Fundamental Problem: Rounding Has Zero Gradient
 
 The `round()` function is a staircase — flat everywhere except at the half-integers where it jumps. Mathematically:
@@ -389,6 +401,10 @@ for name, l in [("Vanilla STE", losses_vanilla_ref),
     print(f"{name:<25} {l[-1]:<12.6f} {reduction:<10.1f}%")
 ```
 
+## Where This Leads Next
+
+You now have every piece of QAT: a quantizer (3.1), a fake-quant module (3.2), and a way to train through it (STE, this section). Section 3.4 assembles them into a real fine-tuning run that alternates datasets and measures whether the quantized model keeps its quality.
+
 ---
 
 ## Key Takeaway
@@ -402,3 +418,10 @@ The Straight-Through Estimator is the **enabling trick** for Quantization-Aware 
 5. **Industry standard** — PyTorch's `torch.quantization.FakeQuantize` uses STE internally; all major QAT papers rely on it
 
 STE is the standard trick in QAT papers and PyTorch `torch.quantization` fake quant modules. Next, we combine STE with real training data to fine-tune a model that survives integer rounding at deployment time.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Bengio, Léonard, & Courville (2013). *Estimating or Propagating Gradients Through Stochastic Neurons (STE)*. arXiv:1308.3432.
+- Courbariaux et al. (2016). *Binarized Neural Networks*. NeurIPS.

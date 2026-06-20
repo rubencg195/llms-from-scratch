@@ -14,6 +14,15 @@ kernelspec:
 
 **Goal:** Implement `nn.Embedding`, visualize 2D projections, and connect lookup tables to trainable coordinates.
 
+## What You Need to Know First
+
+- **Integer token IDs** (Section 1.1) — the input to an embedding is just a token ID.
+- **Tensors and indexing rows of a matrix** (Section 0.1) — an embedding lookup is "grab row number `id` from a big table."
+- **Cosine similarity** (Section 0.2) — we reuse it to check which word vectors are "close."
+- **The autograd training loop** (Section 0.3) — embeddings are learned with the same forward/backward/step loop.
+
+All of these come from earlier sections, so nothing new from outside the course is needed. New terms like *one-hot*, *dense vector*, and *weight tying* are explained inline. (A **dense vector** is simply a short list of real numbers — e.g. 64 of them — that stands in for a token, as opposed to a giant mostly-zero "one-hot" vector.)
+
 ## One-Hot vs Dense Embeddings
 
 There are two ways to represent token IDs as vectors:
@@ -108,7 +117,7 @@ print("batch tensor:", x.shape)  # (B, T, d_model)
 
 ## Weight Tying: Sharing Embeddings with the Language Model Head
 
-In modern LLMs (GPT-2, LLaMA, etc.), the **input embedding matrix** and the **output projection** (LM head) share the same weight matrix. This makes intuitive sense: the embedding maps token ID → vector, and the LM head maps vector → token logits. They're inverse operations over the same semantic space.
+In modern LLMs (GPT-2, LLaMA, etc.), the **input embedding matrix** and the **output projection** (LM head — the final layer that scores each possible next token) share the same weight matrix. This makes intuitive sense: the embedding maps token ID → vector, and the LM head maps vector → token *logits* (raw, unnormalized scores, one per vocabulary word, before softmax turns them into probabilities). They're inverse operations over the same semantic space.
 
 ```python
 class TiedLanguageModel(nn.Module):
@@ -204,6 +213,10 @@ print("Saved cosine_similarity_matrix.png")
 print("Notice: same-category tokens (the/a, cat/dog, ran/walked, big/small) are more similar")
 ```
 
+## Where This Leads Next
+
+Your tokens are now points in space, but they still don't know their **order** in the sentence — "dog bites man" and "man bites dog" would look identical. Section 1.3 (**RoPE**) fixes this by gently rotating each token's vector based on its position, so the model can tell where each word sits.
+
 ## Key Takeaway
 
 - **Embeddings** are learnable lookup tables that map discrete token IDs to continuous vectors in a semantic space.
@@ -215,3 +228,10 @@ print("Notice: same-category tokens (the/a, cat/dog, ran/walked, big/small) are 
 ## Checkpoint
 
 You can embed token IDs into dense vectors. Next: **RoPE** (Section 1.3) — adding positional information so the model knows word order.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Mikolov et al. (2013). *Efficient Estimation of Word Representations in Vector Space (word2vec)*. ICLR Workshop.
+- Press & Wolf (2017). *Using the Output Embedding to Improve Language Models (weight tying)*. EACL.

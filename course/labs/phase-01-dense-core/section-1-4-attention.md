@@ -14,6 +14,14 @@ kernelspec:
 
 **Goal:** Implement causal multi-head self-attention with RoPE and a causal mask.
 
+## What You Need to Know First
+
+- **The dot product and softmax** (Section 0.2) — attention scores are dot products turned into weights by softmax.
+- **`nn.Linear` layers** (Section 0.4) — Q, K, and V are produced by linear layers.
+- **Embeddings** (Section 1.2) and **RoPE** (Section 1.3) — attention runs on position-aware token vectors.
+
+Everything here was built up across Phase 0 and the earlier parts of Phase 1, so no outside knowledge is needed. New terms like *causal mask*, *self-attention*, and *residual connection* are explained inline. (A **causal mask** simply blocks each token from "looking ahead" at words that come later, so the model can only use the past to predict the next word.)
+
 ## Attention as a Database Query
 
 The attention mechanism is best understood as a **soft database lookup**:
@@ -249,6 +257,10 @@ print("Saved multihead_attention_patterns.png")
 print("Each head attends to different positions — this is the power of multi-head attention")
 ```
 
+## Where This Leads Next
+
+You now have the full Transformer block: attention + MLP + residuals. Section 1.5 (**the training loop**) stacks several of these blocks into a complete ~80M-parameter GPT and trains it on TinyStories using the very same forward → loss → backward → step loop you first met back in Section 0.3 — only now at full scale.
+
 ## Key Takeaway
 
 - **Attention** is a soft database lookup: Query asks, Key advertises, Value delivers — weighted by Q·K relevance scores.
@@ -262,3 +274,11 @@ Attention is the **context highlighter** — everything else in Phase 1 stacks t
 ## Checkpoint
 
 You've built causal multi-head attention with RoPE. Next: **the training loop** (Section 1.5) — assembling the full GPT model and training on TinyStories.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Vaswani et al. (2017). *Attention Is All You Need*. NeurIPS.
+- Bahdanau, Cho, & Bengio (2015). *Neural Machine Translation by Jointly Learning to Align and Translate*. ICLR.
+- Dao et al. (2022). *FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness*. NeurIPS.

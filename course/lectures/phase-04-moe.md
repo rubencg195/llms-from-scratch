@@ -367,6 +367,16 @@ Fits comfortably in 10 GB VRAM.
 
 ---
 
+## Bridge to the Next Phase
+
+**What you built in Phase 4:** a Mixture-of-Experts model (`phase4_moe.pt`) — a softmax router, four expert FFNs, an auxiliary load-balancing loss to prevent expert collapse, and tooling to track specialization. You now have *capacity without extra per-token compute*.
+
+**The thread into Phase 5:** Phases 3 and 4 squeezed the **model weights** (fewer bits, then sparse activation). But there is a second memory hog you have not touched: the **KV cache** — the stored keys and values from the attention mechanism you built in Phase 1, which grows with every token generated. Phase 5 applies the *same quantization mindset from Phase 3* to that cache, compressing keys and values to ~3.5 bits on the fly. So carry forward two things: the **attention keys/values** from Phase 1, and the **quantize-and-round skills** from Phase 3 — Phase 5 combines them.
+
+<!-- notes: Tie the two efficiency threads together. Weights were handled by Phase 3 (quantization) and Phase 4 (sparsity). Phase 5 targets the remaining bottleneck, the KV cache, which is literally the cached K and V tensors from Phase 1 attention. The technique is the Phase 3 quantization idea reapplied to those cached tensors. This is the course's pattern: each phase recombines earlier building blocks. -->
+
+---
+
 ## Next
 
 **Phase 5:** TurboQuant — compress the KV cache to 3.5 bits.
@@ -379,3 +389,17 @@ Preview:
 - Mixed-precision: important heads get more bits
 
 <!-- notes: Phase 5 is where we start combining ideas from previous phases. We used quantization in Phase 3 for weights; now we apply similar ideas to the KV cache. We used attention in Phase 1; now we need to compress its memory footprint. The course is designed so that each phase builds on all previous phases, creating a deep understanding of how these techniques interact. -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- Shazeer et al. (2017). *Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer*. ICLR.
+- Lepikhin et al. (2020). *GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding*. arXiv:2006.16668.
+- Fedus, Zoph, & Shazeer (2021). *Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity*. JMLR.
+- Zoph et al. (2022). *ST-MoE: Designing Stable and Transferable Sparse Expert Models*. arXiv:2202.08906.
+- Jiang et al. (2024). *Mixtral of Experts*. arXiv:2401.04088.
+
+<!-- notes: Strictly optional. Shazeer et al. introduced the sparsely-gated MoE layer; GShard scaled it with distributed experts; Switch Transformers is the source of our load-balancing loss and top-1 routing; ST-MoE covers stability tricks; Mixtral is the well-known open top-2 MoE we reference in the comparison table. All concepts appear in the slides already. -->

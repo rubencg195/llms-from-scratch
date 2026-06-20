@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Load a waveform, simulate codec frame tokens, and treat them like text IDs for autoregressive modeling.
 
+## What You Need to Know First
+
+We turn sound into the same kind of integer tokens you already train on. Background you need is small:
+
+- **From the text phases:** tokens are just integers from a fixed vocabulary, and the model predicts the next one ("autoregressive" = predict the next token from the previous ones).
+- **BPE as compression** — recall that tokenization turns a long raw signal (characters) into a shorter sequence of symbols. We do the same thing to audio.
+- **A waveform** — digital sound is literally a long list of numbers (air-pressure measurements), nothing more.
+- **High-school algebra** — sine waves and averages are all the math used; library calls handle the rest.
+
+No prior signal-processing or audio experience is assumed.
+
 ## Sound is Just a Really Fast Sequence of Numbers
 
 At its core, digital audio is simple: a microphone measures air pressure 24,000 times per
@@ -149,8 +160,10 @@ print(f"Unique tokens used: {len(np.unique(assignments))} / {codebook_size}")
 
 A single codebook may not capture all the detail. **RVQ** applies multiple quantization
 levels: the first codebook captures coarse structure, the second captures the residual
-error, the third captures the residual of the residual, etc. This is how EnCodec and
-Mimi achieve high-quality audio with few tokens.
+error, the third captures the residual of the residual, etc. (A "residual" is simply the
+leftover difference between the original and the current approximation.) This is how EnCodec and
+Mimi — neural audio *codecs*, i.e. learned compressors that turn sound into tokens and back —
+achieve high-quality audio with few tokens.
 
 ```python
 def residual_vq(data, codebook_size, n_levels=3, n_iter=20):
@@ -291,6 +304,12 @@ print("(many entries go unused). RVQ is more parameter-efficient than huge singl
 
 ---
 
+## Where This Leads Next
+
+Now that sound is just a stream of integer tokens, Section 7.3 asks the model to predict *two*
+things at once: the next audio token (what to say) and a control tag (the conversation state
+from Section 7.1). That dual-stream loss is what wires audio generation to the full-duplex logic.
+
 ## Key Takeaway
 
 Audio tokenization bridges the gap between continuous sound and discrete language modeling.
@@ -299,3 +318,11 @@ quantization, we make audio amenable to the same autoregressive training used fo
 Residual VQ (multiple codebook levels) achieves high reconstruction quality while keeping
 the per-frame token count low. In production, swap our toy VQ for pretrained **Mimi** or
 **EnCodec** encoders — the principle is identical.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- van den Oord, Vinyals, & Kavukcuoglu (2017). *Neural Discrete Representation Learning (VQ-VAE)*. NeurIPS.
+- Défossez et al. (2022). *High Fidelity Neural Audio Compression (EnCodec)*. arXiv:2210.13438.
+- Zeghidour et al. (2021). *SoundStream: An End-to-End Neural Audio Codec*. IEEE/ACM TASLP.

@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Apply a random orthogonal rotation to KV vectors before quantization; compare reconstruction MSE with/without rotation.
 
+> **Heads-up on the name:** "PolarQuant" is a teaching name we use in this course for the broader *rotate-then-quantize* family of methods (such as QuIP# and QuaRot); it is not a separate published algorithm.
+
+## What You Need to Know First
+
+This section adds one new idea — rotation — on top of things you already know. No outside knowledge needed:
+
+- **The KV cache and quantization** from Section 5.1 — quantizing means snapping each number to one of a small set of allowed levels.
+- **A vector and its "variance"** — variance just measures how spread out a dimension's values are; an *outlier* dimension is one that is spread out far more than the rest.
+- **Matrix multiplication** — multiplying a vector by a matrix to get a new vector. A *rotation* is a special multiply that turns the data without changing any distances.
+- **MSE (mean squared error)** — the average of the squared differences between the original values and the reconstructed ones; smaller MSE = better.
+
 ## The Outlier Problem — Visualized
 
 Neural network activations are not uniformly distributed. In transformer KV caches, it's
@@ -256,6 +267,10 @@ Store $R$ once per layer/head — de-rotate after dequant when attending.
 
 ---
 
+## Where This Leads Next
+
+Rotation gives you a *well-behaved* distribution that quantizes cleanly. **Section 5.3** uses that to actually pack the values down to ~3.5 bits each — squeezing the KV cache about 4.5× smaller and turning the theory here into real memory savings.
+
 ## Key Takeaway
 
 Outlier dimensions destroy uniform quantization by stretching the value range far beyond
@@ -265,3 +280,10 @@ Since rotation preserves distances and dot products, the only error comes from t
 better-conditioned quantization step. Hadamard matrices provide a structured alternative
 to random orthogonal matrices with $O(d \log d)$ transform cost instead of $O(d^2)$, while
 achieving comparable MSE improvement.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Tseng et al. (2024). *QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks*. ICML.
+- Ashkboos et al. (2024). *QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs*. arXiv:2404.00456.

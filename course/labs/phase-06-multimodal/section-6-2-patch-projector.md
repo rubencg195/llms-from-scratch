@@ -259,6 +259,12 @@ for ps in [8, 16, 32]:
 
 ---
 
+## Where This Leads Next
+
+Right now all 9 patch vectors are interchangeable — the model can't tell the top-left patch
+from the bottom-right one. Section 6.3 fixes that by adding spatial position information so
+the model knows *where* each patch came from in the image grid.
+
 ## Key Takeaway
 
 The patch projector is the simplest possible bridge between pixel space and token space:
@@ -267,3 +273,10 @@ dimension. By choosing 16×16 patches for 48×48 images, we get exactly 9 visual
 cheap enough to prepend to any text sequence without blowing our VRAM budget. Each patch
 becomes one "token row" in the LLM sequence, treated identically to text embeddings from
 that point forward.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Dosovitskiy et al. (2020). *An Image is Worth 16x16 Words (ViT)*. ICLR.
+- Bavishi et al. (2023). *Fuyu-8B: A Multimodal Architecture for AI Agents*. Adept AI.

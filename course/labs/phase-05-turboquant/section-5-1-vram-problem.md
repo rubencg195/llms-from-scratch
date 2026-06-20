@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Estimate KV cache bytes vs sequence length and find max context for 10 GB.
 
+## What You Need to Know First
+
+This section is mostly counting bytes — basic multiplication is enough. Helpful background you have already met:
+
+- **Attention's keys (K) and values (V)** — the vectors every token produces so that later tokens can "look back" at it.
+- **Autoregressive generation** — the model writes one token at a time, each time re-reading everything before it.
+- **VRAM** — the memory on your GPU; like RAM, but for the graphics card, and it is limited (e.g. 10 GB on an RTX 3080).
+- **FP16** — a number format that uses 16 bits = 2 bytes per value (half the size of normal FP32).
+
+If you can multiply a few numbers together, you can follow every formula here.
+
 ## The Hidden Cost of Generation
 
 Training and inference have fundamentally different VRAM profiles. During **training**,
@@ -143,7 +154,7 @@ When the KV cache exceeds available GPU memory, several things can happen:
 - **Mixed precision (AMP):** KV cache is already FP16. FP32→FP16 is a one-time 2× savings, already applied.
 - **Batch size reduction:** Helps, but batch=1 is already the minimum for single-user inference.
 
-The only real solutions are: (1) reduce precision below FP16 (quantization), (2) evict old KV entries (sliding window), or (3) compress the cache (TurboQuant).
+The only real solutions are: (1) reduce precision below FP16 (quantization — storing each number with fewer bits), (2) evict old KV entries (sliding window), or (3) compress the cache (TurboQuant — the cache-shrinking technique we build across this phase).
 
 ## Measure Live Allocation During Generate
 
@@ -191,6 +202,10 @@ print(f"Total VRAM used: {(model_weight_bytes + overhead_bytes + kv_cache_bytes(
 
 ---
 
+## Where This Leads Next
+
+You have now measured exactly *why* long contexts blow up VRAM. **Section 5.2 (PolarQuant)** takes the first step toward fixing it: rotating the KV vectors before quantizing so that a few "outlier" numbers stop wrecking the compression — the groundwork for the 3.5-bit cache you build in Section 5.3.
+
 ## Key Takeaway
 
 During autoregressive generation, the **KV cache** grows linearly with sequence length and
@@ -199,3 +214,10 @@ the cache reaches ~134 MB at 8192 tokens. Training-time tricks like gradient che
 are irrelevant at inference. The only paths to longer contexts are **quantizing** the KV cache
 (the focus of Sections 5.2–5.3), using sliding-window attention, or compressing cached
 representations — which is exactly what TurboQuant achieves.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Pope et al. (2023). *Efficiently Scaling Transformer Inference*. MLSys.
+- Ainslie et al. (2023). *GQA: Training Generalized Multi-Query Transformer Models*. EMNLP.
