@@ -10,6 +10,21 @@ author: "LLMs From Scratch"
 
 ---
 
+## Before You Begin (Prerequisites)
+
+It all came from earlier phases — **no external knowledge required**.
+
+- **From Phase 1 you need:** token *embeddings* (turning a token into a vector), *self-attention*, and the idea of a sequence of vectors flowing through the transformer.
+- **From Phase 2 you need:** *loss masking* — only training on some positions and ignoring others. We reuse that exact trick here (mask the image, train on the text).
+- **From Phase 5 you need:** the sense that **longer sequences cost memory** — images add tokens, so the KV-cache lessons still apply.
+- **High-school algebra is enough:** the "projector" is just one matrix multiply plus a bias, the same $Wx + b$ you've seen all course.
+
+A *pixel* is one colored dot; an *RGB* image stores three numbers (red, green, blue) per pixel. That's the only image background you need.
+
+<!-- notes: Anchor students in what they already know. The big mental unlock for this phase is that an image patch is just another vector in the same space as a text embedding — and they already understand text embeddings from Phase 1. The loss-masking trick from Phase 2 returns almost verbatim. Reassure beginners who have never done computer vision: we define pixel and RGB right here, and nothing else about images is assumed. -->
+
+---
+
 ## Learning objectives
 
 - Explain why **separate encoders** waste VRAM
@@ -41,6 +56,8 @@ Why vision matters: **80% of human information intake is visual**. An LLM that c
 ---
 
 ## Traditional Pipeline: CLIP + LLM
+
+A *Vision Transformer (ViT)* is a transformer that reads images instead of text; an *encoder* is a network that turns raw input into feature vectors. *CLIP* is a popular pre-trained image-text encoder.
 
 ```
 Image ──→ [ViT Encoder] ──→ [Adapter MLP] ──→ Visual tokens ─┐
@@ -229,6 +246,35 @@ Small enough to train on a single GPU, complex enough to test spatial understand
 5. Train on **text-only loss** — image patches are inputs, not targets
 
 <!-- notes: The big lesson here is that transformers are general-purpose sequence processors. Once you project any modality into the right vector space, the same attention mechanism handles fusion, reasoning, and generation. This principle extends beyond vision to audio (Phase 7), 3D point clouds, and anything else you can tokenize. -->
+
+---
+
+## Bridge to the Next Phase
+
+You just turned **images into tokens** with a simple projector and let the transformer fuse them with text. **Phase 7 (audio)** does the *same move* for sound.
+
+- Vision: an image → patches → projected vectors → tokens in the sequence.
+- Audio: a waveform → short time slices → **codec tokens** → tokens in the sequence.
+- In both cases, **once a modality is tokenized, the transformer treats it like any other token** — no special fusion module.
+
+The lesson carries straight over: **project any signal into the embedding space and self-attention handles the rest.** Next phase swaps pixels for sound waves.
+
+<!-- notes: Reinforce the unifying principle: tokenize-then-attend. Phase 6 proved it for vision with a linear projector; Phase 7 proves it again for audio with a neural codec. The students should leave expecting audio to feel familiar, because the architectural pattern (signal -> tokens -> shared sequence -> self-attention) is identical. This continuity is the whole pedagogical point of the back half of the course. -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- Dosovitskiy et al. (2020). *An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale (ViT)*. ICLR.
+- Radford et al. (2021). *Learning Transferable Visual Models From Natural Language Supervision (CLIP)*. ICML.
+- Alayrac et al. (2022). *Flamingo: a Visual Language Model for Few-Shot Learning*. NeurIPS.
+- Bavishi et al. (2023). *Fuyu-8B: A Multimodal Architecture for AI Agents*. Adept AI. (encoder-free patch projection)
+- Liu et al. (2023). *Visual Instruction Tuning (LLaVA)*. NeurIPS.
+- Beyer et al. (2024). *PaliGemma: A versatile 3B VLM for transfer*. arXiv:2407.07726.
+
+<!-- notes: Tie the reading list back to the slides. ViT and CLIP are the classic encoder-based approach we are simplifying away from. Flamingo and LLaVA are the adapter-based generation. Fuyu-8B is the real-world inspiration for our encoder-free patch projection — the exact idea students implemented in lab. PaliGemma is a strong modern open VLM if anyone wants to see the technique at scale. All optional. -->
 
 ---
 

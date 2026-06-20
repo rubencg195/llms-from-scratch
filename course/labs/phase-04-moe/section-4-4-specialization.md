@@ -14,6 +14,15 @@ kernelspec:
 
 **Goal:** Log which experts activate on OpenWebText vs Glaive batches and visualize specialization.
 
+## What You Need to Know First
+
+This section ties together everything from Phase 4 — no new outside knowledge needed:
+
+- **The full MoE layer** (router + experts) and the **load-balancing loss** from Sections 4.1–4.3.
+- **Counting which expert each token went to** — basically tallying choices into a histogram (a bar chart of counts).
+- **Cosine similarity** — a single number from −1 to 1 that says how "aligned" two vectors are (1 = identical direction, 0 = unrelated). We use it to spot experts that learned the same thing.
+- The two data sources are just labels: **"webtext"** = ordinary prose, **"glaive"** = structured/JSON-like text. They are only used to show experts behaving differently on different inputs.
+
 ## Why Do We Expect Experts to Specialize?
 
 The combination of sparse routing and load balancing creates a natural pressure toward
@@ -210,7 +219,8 @@ plt.show()
 
 ## What Do Experts Learn? — Analyzing Weight Norms
 
-One way to understand what experts have learned is to examine their weight norms.
+One way to understand what experts have learned is to examine their weight norms
+(a "norm" is just the overall size/magnitude of all the numbers in a weight matrix — a bigger norm means bigger weights).
 Experts that process more varied or larger-magnitude inputs tend to develop larger weights.
 We can also look at which input dimensions each expert is most sensitive to.
 
@@ -402,6 +412,10 @@ print(json.dumps(results, indent=2))
 
 ---
 
+## Where This Leads Next
+
+This completes Phase 4: you can now build, balance, and inspect a Mixture-of-Experts model. **Phase 5 (TurboQuant)** shifts focus from *training capacity* to *inference efficiency* — starting in **Section 5.1** with why long contexts run out of GPU memory, and how to shrink the KV cache so big models fit on a consumer GPU.
+
 ## Key Takeaway
 
 Expert specialization is the **payoff** of MoE — it's why we use multiple experts instead
@@ -412,3 +426,10 @@ analysis and cosine similarity between experts reveal **what** experts have lear
 whether any are redundant (candidates for merging or reinitialization). Specialization
 deepens with more training — early in training the router is nearly random, but after
 hundreds of steps, clear domain preferences emerge.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Shazeer et al. (2017). *Outrageously Large Neural Networks ...*. ICLR.
+- Jiang et al. (2024). *Mixtral of Experts* (expert routing analysis). arXiv:2401.04088.

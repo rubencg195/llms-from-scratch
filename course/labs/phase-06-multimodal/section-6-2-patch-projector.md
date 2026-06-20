@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Split $48 \times 48$ RGB image into $16 \times 16$ patches and project each to `d_model`.
 
+## What You Need to Know First
+
+This section only assumes a few things you've already seen — no outside knowledge required:
+
+- **From Section 6.1:** a "patch projector" is a single linear layer that replaces an expensive vision encoder, saving VRAM.
+- **`nn.Linear`** — a layer that maps an input vector to an output vector by multiplying with learned weights; here it maps a flattened patch to a `d_model`-length vector.
+- **Token embeddings and `d_model`** — text tokens are already vectors of length `d_model`; our goal is to make image patches into vectors of that same length so the LLM treats them identically.
+- **An RGB image as numbers** — a picture is just a grid of pixels, each with 3 numbers (red, green, blue) between 0 and 255.
+
+If that's familiar, you have everything you need.
+
 ## The Patch Projector is the "Retina"
 
 In biological vision, the retina converts raw photon patterns into neural signals that the
@@ -40,7 +51,8 @@ The choice of patch size is a fundamental design decision:
 | 32×32     | ~2 (pad needed)  | 49                 | Low          | Low          |
 
 **Smaller patches = more tokens = more spatial detail** but exponentially more compute in
-the LLM's self-attention (which is O(n²) in sequence length). For our 10 GB budget with
+the LLM's self-attention (the "O(n²)" just means: double the number of tokens and the
+attention work roughly quadruples). For our 10 GB budget with
 48×48 images, 16×16 patches (9 tokens) is the sweet spot.
 
 ---

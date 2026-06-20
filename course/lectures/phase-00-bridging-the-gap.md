@@ -34,6 +34,23 @@ From Python loops and $y = mx + b$ to tensors and autograd.
 
 ---
 
+## Before You Begin (Prerequisites)
+
+This is the very first phase, so the entry bar is intentionally low.
+
+**You need only two things:**
+
+- **Basic Python** — variables, lists, `for` loops, and functions. That's it.
+- **The algebra equation $y = mx + b$** — a straight line with a slope $m$ and an intercept $b$, exactly as taught in high school.
+
+**Everything else is taught here, from zero.** You do **not** need calculus, linear algebra, statistics, or any prior machine-learning experience. Terms like *tensor*, *gradient*, and *autograd* are all introduced in this phase.
+
+> If you can read a `for` loop and you remember $y = mx + b$, you are ready.
+
+<!-- notes: Reassure nervous students directly. This is the on-ramp phase, so the only true prerequisites are basic Python and the line equation y = mx + b. Calculus is NOT required — autograd handles derivatives for us. Every other concept (tensors, dot products, loss, autograd, GPUs) is defined from scratch in the slides that follow. -->
+
+---
+
 ## Learning objectives
 
 - Represent data as **tensors** (lists of numbers on the GPU)
@@ -124,6 +141,8 @@ In matrix form:    Y = W·X + B         (weight MATRIX)
 A network:         Layer1 → ReLU → Layer2 → ReLU → Layer3
                    (chain of matrix multiplies with non-linearities)
 ```
+
+**ReLU** (the non-linearity above) just means "keep positive numbers, set negatives to zero" — a simple bend that lets stacked lines learn curves.
 
 At scale, $x$, $m$, and $b$ are not scalars — they are **tensors**.
 
@@ -294,6 +313,18 @@ These five ideas carry you through the entire course.
 
 ---
 
+## Bridge to the Next Phase
+
+**What you built in Phase 0:** the complete training loop in miniature — tensors to hold data, $y = mx + b$ as the building block, the dot product as a similarity score, a loss to measure wrongness, and autograd to fix the weights.
+
+**The single thread into Phase 1:** the **dot product** you computed by hand becomes **self-attention**. In Phase 1, every word is turned into a vector, and the model uses dot products between those vectors to decide which words should "pay attention" to which — that is the entire heart of the Transformer.
+
+You already own all five tools. Phase 1 just arranges them into a real language model.
+
+<!-- notes: Make the connection explicit and concrete. The dot product from slide "The dot product — worked example" is literally the operation inside attention (QK^T). The y=mx+b linear layer becomes the projections (W_Q, W_K, W_V) and the FFN. Autograd and cross-entropy loss carry over unchanged into the Phase 1 training loop. Nothing new mathematically — just bigger and arranged into a Transformer. -->
+
+---
+
 ## Questions?
 
 Next: **Phase 1 — The Dense Core**
@@ -307,3 +338,16 @@ Preview of Phase 1 concepts:
 - The autoregressive training loop
 
 <!-- notes: Take questions. Common ones: "Do I need to know calculus?" (No — autograd handles it, but understanding the chain rule helps intuition.) "What if I don't have an RTX 3080?" (Any CUDA GPU works; CPU works too but slower.) "How long does Phase 1 training take?" (About 2-4 hours on an RTX 3080.) -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- Rumelhart, Hinton, & Williams (1986). *Learning representations by back-propagating errors*. Nature.
+- Paszke et al. (2019). *PyTorch: An Imperative Style, High-Performance Deep Learning Library*. NeurIPS.
+- Goodfellow, Bengio, & Courville (2016). *Deep Learning*. MIT Press. (free at deeplearningbook.org)
+- Nielsen (2015). *Neural Networks and Deep Learning*. (free online book)
+
+<!-- notes: Strictly optional. If a student is curious where backprop came from, the 1986 Rumelhart paper is the classic. The PyTorch paper explains the autograd engine we lean on. Goodfellow and Nielsen are both free and beginner-friendly companions, but the course is fully self-contained without them. -->

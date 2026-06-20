@@ -14,6 +14,14 @@ kernelspec:
 
 **Goal:** Train a small BPE tokenizer on TinyStories and encode/decode text to integer sequences.
 
+## What You Need to Know First
+
+- **Basic Python lists and dictionaries** — tokenization is mostly mapping text to a list of integer IDs using a lookup dictionary.
+- **The `Counter` / counting idea** — we count how often pieces of text appear; nothing beyond keeping a tally.
+- **Why models need numbers, not letters** (the closing idea of Phase 0) — neural layers only do math on tensors of numbers.
+
+All of this was covered earlier in Phase 0, so no outside knowledge is required. New terms such as *token*, *vocabulary*, and *BPE* are explained in plain words below. (A **token** is just a chunk of text — a character, word, or word-piece — and a **vocabulary** is the fixed list of all tokens the model knows, each with its own integer ID.)
+
 ## Why Tokenization Matters
 
 Before a language model can process text, it must convert characters into **integers** (token IDs). The choice of tokenization strategy creates a fundamental tradeoff:
@@ -184,7 +192,7 @@ for i, row in enumerate(ds):
 
 coverage = known_tokens / total_tokens * 100
 print(f"Vocabulary coverage: {coverage:.1f}% of tokens are known")
-print(f"OOV rate: {100 - coverage:.1f}% of tokens are unknown")
+print(f"OOV rate: {100 - coverage:.1f}% of tokens are unknown")  # OOV = "out-of-vocabulary": words the model has never seen
 print(f"\nSample OOV words: {oov_examples[:10]}")
 print(f"\nThis is why BPE is better: subword pieces cover rare words without a massive vocab.")
 ```
@@ -230,6 +238,10 @@ print(f"  Word-level: {len(char_tokens)/len(word_tokens):.1f}x compression")
 print(f"  BPE:        {len(char_tokens)/len(bpe_tokens):.1f}x compression")
 ```
 
+## Where This Leads Next
+
+You now have a stream of integer token IDs. But an ID like `4217` is just a label — it carries no meaning on its own. Section 1.2 (**embeddings**) gives each token ID a learnable vector of numbers, so that similar tokens can end up close together and the network finally has something meaningful to compute with.
+
 ## Key Takeaway
 
 - **Tokenization** converts raw text into integer sequences that models can process — it's the first and last step in every LLM pipeline.
@@ -241,3 +253,10 @@ print(f"  BPE:        {len(char_tokens)/len(bpe_tokens):.1f}x compression")
 ## Checkpoint
 
 You can encode text ↔ integers. Next: **embeddings** (Section 1.2) — turning those integer IDs into learnable dense vectors.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Sennrich, Haddow, & Birch (2016). *Neural Machine Translation of Rare Words with Subword Units (BPE)*. ACL.
+- Kudo & Richardson (2018). *SentencePiece: A simple and language independent subword tokenizer*. EMNLP.

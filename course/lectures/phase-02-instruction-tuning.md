@@ -14,6 +14,22 @@ Train the Phase 1 model to follow chat format and emit JSON tool calls.
 
 ---
 
+## Before You Begin (Prerequisites)
+
+Everything here was built in **Phase 1** (and rests on **Phase 0**) — no outside knowledge needed.
+
+- **A trained base Transformer** — the `phase1_80m.pt` checkpoint you produced in Phase 1. We fine-tune *that exact model*.
+- **Next-token prediction & cross-entropy loss** — how the model is trained (Phase 0 + Phase 1). We only adjust *which* tokens get scored.
+- **Tokenization** — text becomes integer IDs via BPE (Phase 1). Here we add a few new special tokens for chat roles.
+- **The training loop** — forward, loss, `backward()`, optimizer step (Phase 0). Identical here, just with a mask.
+- **Basic Python & JSON** — dictionaries and lists are enough to follow tool calling.
+
+> Nothing in this phase changes the model's architecture. If you trained the Phase 1 model, you are ready.
+
+<!-- notes: Reassure students that Phase 2 reuses everything: the architecture is untouched, the loss is the same cross-entropy, and the training loop is the Phase 0/1 loop plus a mask. The only genuinely new ideas — chat templates and masked loss — are introduced from scratch in the upcoming slides. JSON is just Python dicts. -->
+
+---
+
 ## Learning objectives
 
 - Design **chat templates** with `<|Thought|>` tags
@@ -130,7 +146,7 @@ labels[user_mask] = -100        # PyTorch ignores -100 in cross_entropy
 loss = F.cross_entropy(logits.view(-1, V), labels.view(-1), ignore_index=-100)
 ```
 
-Setting user token labels to `-100` is the standard PyTorch convention for "don't compute loss here."
+Here `logits` are the model's raw, pre-probability scores for each possible next token. Setting user token labels to `-100` is the standard PyTorch convention for "don't compute loss here."
 
 <!-- notes: This is deceptively simple but incredibly important. Without masking, the model would spend half its capacity learning to mimic user questions — which is useless for an assistant. The -100 trick is a PyTorch convention: F.cross_entropy skips any target with this value. In practice, you build the mask by tracking which tokens came from which role during template formatting. -->
 
@@ -278,6 +294,8 @@ The 70/30 ratio is tuned empirically in the labs — students experiment with di
 | Batch size | 8 | Same VRAM as Phase 1 |
 | Warmup | 100 steps | Short (weights already good) |
 
+An **epoch** is one full pass over the training dataset; *3 epochs* means the model sees every example three times.
+
 **Why lower learning rate?**
 - Pretrained weights are already useful — large LR would destroy them
 - We want to **add** instruction-following ability, not **replace** language knowledge
@@ -320,6 +338,16 @@ VRAM comparison:
 
 ---
 
+## Bridge to the Next Phase
+
+**What you built in Phase 2:** an instruction-following model (`phase2_instruct.pt`) that obeys a chat template, reasons in `<|Thought|>` tags, solves GSM8K-style math, and emits valid JSON tool calls — all by reusing the Phase 1 weights with masked loss.
+
+**The thread into Phase 3:** Phase 2 gave you a model that is *smart but heavy* (16-bit weights). Phase 3 makes it *small* without making it dumb. The crucial concept that carries over is **data mixing**: here you mixed GSM8K and Glaive to teach two skills at once; in Phase 3 you will mix TinyStories + GSM8K + Glaive during quantization so the model keeps all the abilities it just learned (avoiding "catastrophic forgetting"). Also carry forward the idea that **fine-tuning uses a much smaller learning rate** than pretraining — Phase 3 goes smaller still.
+
+<!-- notes: Two explicit hooks into Phase 3. First, data mixing: the 70/30 GSM8K/Glaive mix here becomes a 40/30/30 mix in Phase 3 to preserve all prior skills during quantization. Second, the gentle-fine-tuning mindset (low LR to avoid destroying good weights) continues — Phase 3 uses an even smaller LR. The model produced here, phase2_instruct.pt, is the literal starting checkpoint for Phase 3. -->
+
+---
+
 ## Next
 
 **Phase 3:** Quantization-aware training (QAT).
@@ -333,3 +361,18 @@ Preview:
 - Training with mixed-precision data
 
 <!-- notes: Phase 3 is where we transition from "making the model smarter" to "making the model smaller." Quantization is essential for deployment — nobody wants to run an FP16 model on a phone. But naive quantization (just rounding weights) destroys quality. QAT teaches the model to be robust to rounding during training itself. -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- Ouyang et al. (2022). *Training language models to follow instructions with human feedback (InstructGPT)*. NeurIPS.
+- Wei et al. (2022). *Chain-of-Thought Prompting Elicits Reasoning in Large Language Models*. NeurIPS.
+- Cobbe et al. (2021). *Training Verifiers to Solve Math Word Problems (GSM8K)*. arXiv:2110.14168.
+- Schick et al. (2023). *Toolformer: Language Models Can Teach Themselves to Use Tools*. NeurIPS.
+- Wei et al. (2021). *Finetuned Language Models Are Zero-Shot Learners (FLAN)*. ICLR.
+- DeepSeek-AI (2025). *DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning*. arXiv:2501.12948.
+
+<!-- notes: Strictly optional. InstructGPT and FLAN are the foundational instruction-tuning papers; the Chain-of-Thought paper motivates our Thought tags; GSM8K is the dataset we fine-tune on; Toolformer underlies tool/function calling; DeepSeek-R1 is the modern reasoning-via-RL model whose <think> tags mirror our approach. All concepts are already covered in the slides. -->

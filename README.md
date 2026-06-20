@@ -166,6 +166,45 @@ llms-from-scratch/
 
 ---
 
+## How to use this course (read this first)
+
+This course is **self-contained**. If you can write a basic Python `for` loop and you remember the line equation $y = mx + b$ from algebra, you have everything you need to start. Every new idea is introduced from scratch, in order, and each phase only relies on what earlier phases already taught.
+
+**The golden rule:** do the phases in order. Each phase ends with a *Bridge to the Next Phase* slide, and each lab ends with a *Where This Leads Next* note, so you always know how today's idea feeds into tomorrow's.
+
+**What each phase gives you:**
+
+- A **lecture** (`course/lectures/phase-XX-*.md`) — the concepts, analogies, and math, exported to slides.
+- A set of **labs** (`course/labs/phase-XX-*/section-*.md`) — hands-on notebooks where you write and run the code.
+
+**How to study a single phase:**
+
+1. Read (or attend) the lecture first — it builds the mental model.
+2. Open the labs in order and run every cell. Change numbers and break things on purpose; intuition comes from experimenting.
+3. Each lab opens with **What You Need to Know First** (a quick recap of prerequisites, all taught earlier) and closes with **Key Takeaway** + **Where This Leads Next**.
+4. The **Further Reading (Optional)** section at the end of every lecture and lab lists the original research papers. **These are strictly optional enrichment — you never need to read them to continue.**
+
+**If you get stuck:** re-read the "What You Need to Know First" box for that section; it names the exact earlier section where the concept was introduced.
+
+---
+
+## Prerequisites
+
+**Required (that's all):**
+
+- Basic Python: variables, lists, loops, functions, and `import`.
+- High-school algebra: the line equation $y = mx + b$, and what "multiply and add" means.
+
+**Explicitly NOT required** (we teach these as we go):
+
+- Calculus — PyTorch's autograd computes all derivatives for you (Phase 0 explains the idea).
+- Linear algebra beyond multiply-and-add — dot products and matrices are introduced in Phase 0.
+- Any prior machine learning, deep learning, or PyTorch experience.
+
+**Software:** Python 3.11+, and the packages in `requirements.txt`. A CUDA GPU (RTX 3080 target) is ideal, but every lab also runs on CPU (just slower).
+
+---
+
 ## Instructor setup
 
 ### 1. System prerequisites
@@ -335,6 +374,112 @@ Outputs:
 2. **Phase 1** checkpoint is the backbone reused in Phases 2–8; save `checkpoints/phase1_80m.pt`.
 3. **VRAM budget:** log `torch.cuda.max_memory_allocated()` at the end of every lab (Phase 8.6 formalizes this).
 4. Datasets are downloaded inside labs via `datasets` / custom loaders; large files stay out of git.
+
+---
+
+## Glossary (plain-language)
+
+Quick definitions for terms used throughout the course. Each is explained in full where it first appears.
+
+| Term | Plain meaning |
+|------|---------------|
+| **Tensor** | A multi-dimensional array of numbers (a number, list, table, or cube of numbers). |
+| **Weight / bias** | The $m$ and $b$ in $y = mx + b$ — the numbers the model learns. |
+| **Parameter** | Any learnable number in the model (weights and biases). |
+| **Dot product** | Multiply matching entries of two lists and add them up; measures similarity. |
+| **Embedding** | A learned vector (list of numbers) that represents a token as a point in space. |
+| **Token** | A chunk of text (word or sub-word) turned into an integer ID. |
+| **Logits** | The raw, pre-probability scores a model outputs before softmax. |
+| **Softmax** | Turns a list of scores into probabilities that sum to 1. |
+| **Loss** | A single number measuring how wrong the model is; training shrinks it. |
+| **Gradient** | The direction/size of a nudge to each weight that reduces the loss. |
+| **Autograd** | PyTorch's automatic gradient calculator — no hand calculus needed. |
+| **Attention** | A mechanism that lets each token look at others via dot products. |
+| **RoPE** | Rotary Position Embedding — encodes word order by rotating vectors. |
+| **Quantization** | Storing numbers with fewer bits (e.g., 4-bit ints) to save memory. |
+| **STE** | Straight-Through Estimator — lets gradients flow through rounding. |
+| **MoE** | Mixture of Experts — route each token to one of several sub-networks. |
+| **KV cache** | Stored Keys/Values of past tokens so the model needn't recompute them. |
+| **Codec** | A model that turns audio waveforms into discrete integer tokens. |
+| **TTT** | Test-Time Training — updating a small memory network during inference. |
+| **VRAM** | The GPU's memory; our hard limit is 10 GB (RTX 3080). |
+
+---
+
+## Master bibliography (all optional)
+
+Every paper referenced in the course, gathered here for convenience. **None of these are required reading** — the course is fully self-contained. They are listed for students who want to go deeper into a topic.
+
+**Foundations (Phase 0)**
+
+- Rumelhart, Hinton, & Williams (1986). *Learning representations by back-propagating errors*. Nature.
+- Cybenko (1989). *Approximation by Superpositions of a Sigmoidal Function*.
+- Goodfellow, Bengio, & Courville (2016). *Deep Learning*. MIT Press (free at deeplearningbook.org).
+- Paszke et al. (2019). *PyTorch: An Imperative Style, High-Performance Deep Learning Library*. NeurIPS.
+- Kingma & Ba (2015). *Adam: A Method for Stochastic Optimization*. ICLR.
+
+**Transformers & language modeling (Phase 1)**
+
+- Vaswani et al. (2017). *Attention Is All You Need*. NeurIPS.
+- Sennrich, Haddow, & Birch (2016). *Neural Machine Translation of Rare Words with Subword Units (BPE)*. ACL.
+- Su et al. (2021). *RoFormer: Enhanced Transformer with Rotary Position Embedding*. arXiv:2104.09864.
+- Ba, Kiros, & Hinton (2016). *Layer Normalization*. arXiv:1607.06450.
+- Radford et al. (2019). *Language Models are Unsupervised Multitask Learners (GPT-2)*. OpenAI.
+- Eldan & Li (2023). *TinyStories*. arXiv:2305.07759.
+- Dao et al. (2022). *FlashAttention*. NeurIPS.
+
+**Instruction tuning & tools (Phase 2)**
+
+- Ouyang et al. (2022). *Training language models to follow instructions with human feedback (InstructGPT)*. NeurIPS.
+- Wei et al. (2022). *Chain-of-Thought Prompting Elicits Reasoning in LLMs*. NeurIPS.
+- Cobbe et al. (2021). *Training Verifiers to Solve Math Word Problems (GSM8K)*. arXiv:2110.14168.
+- Schick et al. (2023). *Toolformer*. NeurIPS.
+- DeepSeek-AI (2025). *DeepSeek-R1*. arXiv:2501.12948.
+
+**Quantization (Phases 3 & 5)**
+
+- Bengio, Léonard, & Courville (2013). *Estimating or Propagating Gradients Through Stochastic Neurons (STE)*. arXiv:1308.3432.
+- Jacob et al. (2018). *Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference*. CVPR.
+- Dettmers et al. (2022). *LLM.int8()*. NeurIPS.
+- Frantar et al. (2022). *GPTQ*. arXiv:2210.17323.
+- Chee et al. (2023). *QuIP*. NeurIPS.
+- Tseng et al. (2024). *QuIP#*. ICML.
+- Ashkboos et al. (2024). *QuaRot*. arXiv:2404.00456.
+- Liu et al. (2024). *KIVI*. ICML.
+
+**Mixture of Experts (Phase 4)**
+
+- Shazeer et al. (2017). *Outrageously Large Neural Networks: The Sparsely-Gated MoE Layer*. ICLR.
+- Lepikhin et al. (2020). *GShard*. arXiv:2006.16668.
+- Fedus, Zoph, & Shazeer (2021). *Switch Transformers*. JMLR.
+- Jiang et al. (2024). *Mixtral of Experts*. arXiv:2401.04088.
+
+**Multimodal (Phase 6)**
+
+- Dosovitskiy et al. (2020). *An Image is Worth 16x16 Words (ViT)*. ICLR.
+- Radford et al. (2021). *CLIP*. ICML.
+- Alayrac et al. (2022). *Flamingo*. NeurIPS.
+- Bavishi et al. (2023). *Fuyu-8B*. Adept AI.
+- Liu et al. (2023). *Visual Instruction Tuning (LLaVA)*. NeurIPS.
+
+**Audio (Phase 7)**
+
+- van den Oord, Vinyals, & Kavukcuoglu (2017). *Neural Discrete Representation Learning (VQ-VAE)*. NeurIPS.
+- Zeghidour et al. (2021). *SoundStream*. IEEE/ACM TASLP.
+- Défossez et al. (2022). *High Fidelity Neural Audio Compression (EnCodec)*. arXiv:2210.13438.
+- Wang et al. (2023). *VALL-E*. arXiv:2301.02111.
+- Défossez et al. (2024). *Moshi*. arXiv:2410.00037.
+
+**Memory & test-time training (Phase 8)**
+
+- Graves, Wayne, & Danihelka (2014). *Neural Turing Machines*. arXiv:1410.5401.
+- Finn, Abbeel, & Levine (2017). *Model-Agnostic Meta-Learning (MAML)*. ICML.
+- Katharopoulos et al. (2020). *Transformers are RNNs (Linear Attention)*. ICML.
+- Gu & Dao (2023). *Mamba*. arXiv:2312.00752.
+- Sun et al. (2024). *Learning to (Learn at Test Time)*. arXiv:2407.04620.
+- Behrouz, Zhong, & Mirrokni (2024). *Titans: Learning to Memorize at Test Time*. arXiv:2501.00663.
+
+> Naming note: *TurboQuant* and *PolarQuant* are teaching names used in this course for the rotation-then-quantize family of methods pioneered by QuIP#/QuaRot.
 
 ---
 

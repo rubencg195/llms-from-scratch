@@ -14,6 +14,16 @@ kernelspec:
 
 **Goal:** Replace dense FFN with four parallel experts; only one runs per token (same FLOPs as single FFN).
 
+## What You Need to Know First
+
+This section combines pieces you have already seen — no new outside knowledge required:
+
+- **The router from Section 4.1** — the tiny linear layer + softmax that picks one expert per token.
+- **A feed-forward network (FFN)** — the standard "expand then shrink" block of two linear layers with an activation in between, which you built in earlier phases.
+- **Parameters vs. compute (FLOPs)** — parameters are how many numbers the model stores; FLOPs are how much arithmetic it does per token. MoE keeps FLOPs low while growing parameters.
+
+If those are familiar, you are ready.
+
 ## The Receptionist + Specialists Analogy
 
 Picture a medical clinic with **one receptionist** and **four specialist doctors**. Every patient
@@ -279,6 +289,10 @@ plt.show()
 
 ---
 
+## Where This Leads Next
+
+You now have several experts and a router, but nothing yet stops the router from sending almost every token to the *same* expert. In **Section 4.3** you will add a load-balancing loss — a small amount of extra math that encourages the router to spread tokens evenly so all of your experts actually get used.
+
 ## Key Takeaway
 
 A Mixture-of-Experts layer multiplies model **capacity** (total parameters) without
@@ -287,3 +301,10 @@ picks one per token. The capacity factor prevents any single expert from being o
 When swapped into a Transformer block, attention stays unchanged — only the FFN is replaced.
 More experts means more parameters but the same per-token cost, which is the fundamental
 scaling insight behind models like GShard, Switch Transformer, and Mixtral.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Jiang et al. (2024). *Mixtral of Experts*. arXiv:2401.04088.
+- Lepikhin et al. (2020). *GShard*. arXiv:2006.16668.

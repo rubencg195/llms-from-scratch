@@ -14,6 +14,18 @@ kernelspec:
 
 **Goal:** Load GSM8K, format chain-of-thought examples, and fine-tune with masked loss. We will build a complete training loop using a small demo model, implement proper mask construction from template spans, evaluate generation quality, and plot the loss curve.
 
+## What You Need to Know First
+
+This is the capstone of Phase 2 — it reuses everything from the previous two sections, plus the basic training loop from Phase 1.
+
+- **Chat templates** (Section 2.1) — formatting a question + reasoning + answer into one string with `<|user|>`, `<|assistant|>`, and `<|Thought|>` markers.
+- **Masked loss** (Section 2.2) — computing loss only on assistant tokens.
+- **A training loop** — the repeated cycle of: predict, measure loss, `backward()`, `optimizer.step()`. You saw this in Phase 1.
+- **GSM8K** — a public dataset of grade-school math word problems, each with a worked, step-by-step solution ending in `#### <number>`.
+- **Chain-of-thought** — just a fancy name for "showing your work" before giving the final answer.
+
+Plain Python and the PyTorch basics from Phase 1 are all you need.
+
 ## Load the Dataset
 
 ```python
@@ -370,6 +382,10 @@ best = min(results, key=lambda r: r["final_loss"])
 print(f"\nBest config: LR={best['lr']:.0e}, epochs={best['epochs']}")
 ```
 
+## Where This Leads Next
+
+With math reasoning working, Section 2.4 teaches the final instruction-tuning skill: emitting structured **JSON for tool use**, so the model can call a calculator or weather API instead of guessing. After that, Phase 3 shifts from *teaching* the model to *shrinking* it with quantization.
+
 ---
 
 ## Key Takeaway
@@ -382,3 +398,10 @@ A complete instruction-tuning pipeline has four components working together:
 4. **Evaluation** — generate answers and extract final numbers to measure accuracy
 
 The masked loss is critical: without it, the model wastes half its capacity learning to predict questions instead of learning to reason through answers. Even with a tiny model and pseudo-tokenization, you can observe the loss decreasing — confirming the training signal flows correctly through the masked objective.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Cobbe et al. (2021). *Training Verifiers to Solve Math Word Problems (GSM8K)*. arXiv:2110.14168.
+- Wei et al. (2022). *Chain-of-Thought Prompting Elicits Reasoning in Large Language Models*. NeurIPS.

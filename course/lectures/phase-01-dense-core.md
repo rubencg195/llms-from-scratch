@@ -14,6 +14,22 @@ Build a modern ~80M-parameter Transformer from scratch on TinyStories.
 
 ---
 
+## Before You Begin (Prerequisites)
+
+Everything on this list was taught in **Phase 0** — nothing new from outside is required.
+
+- **Tensors** — multi-dimensional arrays of numbers (Phase 0).
+- **The dot product** — multiply matching entries and sum; it measures similarity (Phase 0). This is the engine of attention.
+- **$y = mx + b$ as a linear layer** — a weight matrix times an input plus a bias (Phase 0). Every projection in this phase is just this at scale.
+- **Loss + autograd** — cross-entropy measures wrongness, `loss.backward()` distributes the blame, the optimizer nudges the weights (Phase 0).
+- **Basic Python** — loops, functions, and classes.
+
+> If Phase 0's five takeaways feel comfortable, you have everything you need. The math here is the same — only bigger.
+
+<!-- notes: Anchor students back to Phase 0 explicitly. The dot product becomes attention, the linear layer becomes Q/K/V projections and the FFN, and the autograd training loop is reused almost verbatim. No external reading, no calculus, no prior NLP knowledge is assumed. -->
+
+---
+
 ## Learning objectives
 
 - **Tokenize** text into integer IDs using BPE
@@ -64,6 +80,8 @@ Next-token probabilities
 ```
 
 **Pre-LN** = LayerNorm *before* each sub-layer (more stable training than Post-LN).
+
+**LayerNorm** (the raw scores → stable scale step) rescales each token's vector to a steady mean and spread so training doesn't blow up. **Logits** are the raw, pre-probability scores the model produces for every possible next token (turned into probabilities by softmax).
 
 <!-- notes: Draw this on the board if possible. The residual connections (the + arrows) are critical — they let gradients flow directly back through the network without vanishing. Pre-LN is the modern standard used by GPT-2 and later. Post-LN (original "Attention Is All You Need") puts LayerNorm after the addition, which is less stable. -->
 
@@ -163,6 +181,8 @@ High-freq dims:  ⟲ fast clock hand (second hand)
 ## Attention = learned highlighting
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V$$
+
+**Softmax** turns a list of raw scores into positive probabilities that add up to 1 (the bigger the score, the bigger its share).
 
 - **Query** $Q$: "What am I looking for?"
 - **Key** $K$: "What do I contain?"
@@ -344,6 +364,18 @@ This single checkpoint is the **foundation** for everything that follows:
 
 ---
 
+## Bridge to the Next Phase
+
+**What you built in Phase 1:** a full ~80M-parameter Transformer — BPE tokenizer, embeddings, RoPE positions, multi-head causal attention, FFN blocks, and an autoregressive training loop — saved as `phase1_80m.pt`.
+
+**The thread into Phase 2:** Phase 2 does **not** change a single layer of this architecture. It reuses the *exact same model and the same cross-entropy loss*, but changes **what data we train on** and **which tokens we score**. The causal, next-token prediction you mastered here is the only mechanism Phase 2 needs — it simply formats text as a chat conversation and grades only the assistant's replies (masked loss).
+
+So carry forward two ideas: **next-token prediction** and the **`phase1_80m.pt` checkpoint**. Phase 2 builds an assistant on top of both.
+
+<!-- notes: The key continuity message: instruction tuning is NOT a new architecture. Same Transformer, same loss function, same training loop. The only differences are the dataset (chat-formatted) and a mask that zeroes out loss on user tokens. Students who understand that Phase 1's model just predicts the next token will immediately grasp why fine-tuning on Q&A data makes it answer questions. -->
+
+---
+
 ## Next
 
 **Phase 2:** Instruction tuning and JSON tool calling.
@@ -355,3 +387,19 @@ We will teach this base model to:
 - Emit valid JSON for tool/function calling
 
 <!-- notes: Preview: Phase 2 is where the model goes from "babbling storyteller" to "useful assistant." The key technique is masked loss — we only grade the model on its own responses, not on the user's prompts. This is a simple but powerful idea that makes instruction tuning work. -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- Vaswani et al. (2017). *Attention Is All You Need*. NeurIPS.
+- Sennrich, Haddow, & Birch (2016). *Neural Machine Translation of Rare Words with Subword Units (BPE)*. ACL.
+- Su et al. (2021). *RoFormer: Enhanced Transformer with Rotary Position Embedding*. arXiv:2104.09864.
+- Radford et al. (2019). *Language Models are Unsupervised Multitask Learners (GPT-2)*. OpenAI.
+- Eldan & Li (2023). *TinyStories: How Small Can Language Models Be and Still Speak Coherent English?*. arXiv:2305.07759.
+- Ba, Kiros, & Hinton (2016). *Layer Normalization*. arXiv:1607.06450.
+- Hendrycks & Gimpel (2016). *Gaussian Error Linear Units (GELUs)*. arXiv:1606.08415.
+
+<!-- notes: Strictly optional. Vaswani et al. is the original Transformer; the Sennrich BPE paper underpins our tokenizer; RoFormer introduced RoPE; GPT-2 is the Pre-LN decoder we mirror; TinyStories justifies the dataset choice; the Layer Normalization and GELU papers cover two components we use directly. Every concept is already explained in the slides — these are for the curious. -->

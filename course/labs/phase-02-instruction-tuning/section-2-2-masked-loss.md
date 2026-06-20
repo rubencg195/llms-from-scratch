@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Build a boolean loss mask so only assistant tokens contribute to cross-entropy.
 
+## What You Need to Know First
+
+This section continues directly from Section 2.1 — you already have all the background you need.
+
+- **Chat templates and role regions** — from Section 2.1, you know each token belongs to a "user" or "assistant" region. The "Train?" column from that section becomes our mask here.
+- **Cross-entropy loss** — the standard number that measures how wrong a prediction is; bigger means more wrong. We computed it in Phase 1.
+- **A mask** — just a list of 1s and 0s the same length as the tokens; multiplying by 0 "turns off" a position, multiplying by 1 keeps it.
+- **Gradients** — the signal that tells each weight how to change; "zero gradient" simply means "no learning happens here."
+
+No new math beyond multiplying and averaging is required.
+
 ## Why We Don't Train on User Tokens
 
 In a chat-formatted training example, roughly half the tokens belong to the user's question. If we include these in the loss, two bad things happen:
@@ -212,6 +223,10 @@ print(f"Max gradient diff:     {(grad_a - grad_b).abs().max().item():.2e}")
 print(f"Gradients equivalent:  {torch.allclose(grad_a, grad_b, atol=1e-6)}")
 ```
 
+## Where This Leads Next
+
+You now have the two core building blocks of instruction tuning: a chat template (Section 2.1) and a masked loss (this section). Section 2.3 puts them together into a full fine-tuning loop on the real GSM8K math dataset, where the mask is built automatically from the template spans.
+
 ---
 
 ## Key Takeaway
@@ -222,3 +237,10 @@ The masked loss function is the mechanism that teaches the model *only how to re
 2. **`ignore_index=-100`** — simpler API, slightly faster, but binary (on/off only)
 
 Both produce identical gradients. The key insight is that masking ensures **zero gradient flows to user-region logits**, meaning the model's parameters are updated exclusively to improve response quality. This is not a minor optimization — without masking, you waste ~50% of your training compute learning the wrong objective.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Ouyang et al. (2022). *Training language models to follow instructions with human feedback*. NeurIPS.
+- Wang et al. (2023). *Self-Instruct: Aligning Language Models with Self-Generated Instructions*. ACL.

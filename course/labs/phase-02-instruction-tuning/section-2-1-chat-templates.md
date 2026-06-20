@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Serialize multi-turn chats with role markers and thought tags for instruction tuning.
 
+## What You Need to Know First
+
+Everything here builds on ideas from Phase 1 — no outside knowledge needed.
+
+- **Tokens and tokenization** — text is chopped into small pieces (tokens), each with a number (an ID). We covered this in Phase 1.
+- **Next-token prediction** — a base model is just trained to guess the next token over and over. That is all it knows how to do.
+- **Special tokens** — extra "marker" tokens (like `<|user|>`) that we invent and add to the vocabulary to signal structure rather than ordinary words.
+- Basic Python (functions, dictionaries, f-strings) is all the coding you need.
+
+If any of these feel fuzzy, the examples below will make them concrete as you go.
+
 ## Why Chat Formatting Matters
 
 A base language model is trained on next-token prediction over raw text — it has no concept of "user" or "assistant." If you prompt a base model with a question, it may continue writing more questions, finish the paragraph you started, or produce entirely unrelated text. It *babbles* because nothing in its training told it that a response is expected.
@@ -285,6 +296,10 @@ assert tutoring_conversation.count(SPECIAL["assistant"]) == 2, "Should have 2 as
 print("\nAll assertions passed.")
 ```
 
+## Where This Leads Next
+
+Now that you can serialize a conversation and mark which tokens belong to the assistant, the next question is how to *train* only on those assistant tokens. Section 2.2 builds the **masked loss function**, which uses exactly the "Train?" column from the token table above to ignore user tokens during learning.
+
 ---
 
 ## Key Takeaway
@@ -297,3 +312,10 @@ Chat templates are the **serialization protocol** between humans and language mo
 4. **Multi-turn context** — conversation history is packed into a single token sequence with unambiguous structure
 
 The template you choose at training time **must** match what you use at inference time. A mismatch (e.g., training with ChatML but prompting with Llama-style) will produce garbage outputs regardless of model quality.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Ouyang et al. (2022). *Training language models to follow instructions with human feedback (InstructGPT)*. NeurIPS.
+- Taori et al. (2023). *Stanford Alpaca: An Instruction-following LLaMA model*. Stanford CRFM.

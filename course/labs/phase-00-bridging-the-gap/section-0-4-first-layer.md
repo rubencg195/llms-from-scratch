@@ -14,6 +14,15 @@ kernelspec:
 
 **Goal:** Implement `nn.Linear`, stack two layers with a non-linearity, and train on synthetic classification data.
 
+## What You Need to Know First
+
+- **Tensors** (Section 0.1) — the inputs and weights are all tensors.
+- **The dot product / matrix multiply** (Section 0.2) — a linear layer is literally a matrix multiply plus a shift.
+- **The autograd training loop** (Section 0.3) — forward → loss → `backward()` → `optimizer.step()`, reused unchanged here.
+- **The line $y = mx + b$ from algebra** — a linear layer is exactly this idea, just with many inputs at once.
+
+Each of these was introduced in an earlier Section 0.x, so nothing outside the course is required. New terms like *non-linearity* and *decision boundary* are defined inline below. (A **non-linearity** is a simple bend-the-numbers function, like ReLU, inserted between layers so the network can learn shapes that are not just straight lines.)
+
 ## One linear layer
 
 `nn.Linear(in_features, out_features)` stores $W$ shape `(out, in)` and $b$ shape `(out,)`.
@@ -270,6 +279,10 @@ if device == "cuda":
     print("Peak VRAM (MB):", torch.cuda.max_memory_allocated() / 1e6)
 ```
 
+## Where This Leads Next
+
+This `Linear → non-linearity → Linear` sandwich is the atom of every Transformer. In Phase 1 (starting with Section 1.1 on tokenization) you stop using made-up `randn` data and start feeding the network *real text* — first by turning words into integer IDs, then embeddings, position info, and attention, until these little layers add up to a working GPT.
+
 ## Key Takeaway
 
 - **Non-linearities** (ReLU, GELU, etc.) are what give neural networks their power — without them, any depth collapses to a single linear transformation.
@@ -287,3 +300,11 @@ You now have all the prerequisites for building a Transformer:
 - **Linear layers** (Section 0.4): the computation unit
 
 In **Phase 1**, we assemble these into a GPT: tokenization → embeddings → position encoding (RoPE) → attention → training loop.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Rosenblatt (1958). *The Perceptron: A Probabilistic Model for Information Storage and Organization in the Brain*. Psychological Review.
+- Cybenko (1989). *Approximation by Superpositions of a Sigmoidal Function*. (universal approximation)
+- Goodfellow, Bengio, & Courville (2016). *Deep Learning*. MIT Press.

@@ -14,6 +14,18 @@ kernelspec:
 
 **Goal:** Manually quantize a float tensor to 4-bit integers and measure reconstruction error.
 
+## What You Need to Know First
+
+This kicks off Phase 3. It only needs a little high-school algebra and the tensor basics from earlier phases — no calculus yet.
+
+- **Weights and tensors** — a model's learned numbers, stored as big grids of values (tensors). You met these in Phase 1.
+- **Floating-point vs integers** — floats (like 0.0314) can store fractions but take more memory; integers (like 5) are exact whole numbers and take less.
+- **Bits** — the storage budget per number. Fewer bits = smaller file but less precision. "4-bit" means only 16 possible values.
+- **Rounding and min/max** — finding the smallest and largest values in a list and snapping each value to the nearest allowed step. That is the whole idea.
+- **MSE (mean squared error)** — average of the squared differences; here it measures how far the rounded numbers drifted from the originals.
+
+If you can find a min, a max, and round to the nearest step, you can follow this entire section.
+
 ## Why Smaller Numbers Matter
 
 Modern LLMs have billions of parameters stored as 32-bit (or 16-bit) floating-point numbers. At inference time, the bottleneck is almost never compute — it's **memory bandwidth**. Every token generation requires reading the entire model's weights from memory.
@@ -288,6 +300,10 @@ print(f"\n4-bit error is {ratio.item():.1f}× higher than 8-bit")
 print(f"But 4-bit gives {8/4:.0f}× more compression than 8-bit")
 ```
 
+## Where This Leads Next
+
+So far we have quantized weights *after the fact* with plain NumPy-style math. Section 3.2 wraps this `quantize → dequantize` round-trip inside an `nn.Module` so it can run live during a model's forward pass — the first step toward training a model that expects to be quantized.
+
 ---
 
 ## Key Takeaway
@@ -300,3 +316,10 @@ Quantization is a **lossy compression** that trades reconstruction accuracy for 
 4. **Symmetric vs asymmetric** — symmetric is simpler and faster for inference (no zero-point subtraction in matmul), but wastes range for skewed distributions
 
 Phase 5 rotation attacks the outlier problem; QAT (next sections) teaches weights to *fit* the quantization grid during training so reconstruction error is minimal at inference time.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Nagel et al. (2021). *A White Paper on Neural Network Quantization*. arXiv:2106.08295.
+- Jacob et al. (2018). *Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference*. CVPR.

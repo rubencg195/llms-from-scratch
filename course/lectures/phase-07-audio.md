@@ -10,6 +10,21 @@ author: "LLMs From Scratch"
 
 ---
 
+## Before You Begin (Prerequisites)
+
+Built entirely on earlier phases — **no external knowledge required**.
+
+- **From Phase 1 you need:** next-token prediction with a *softmax* (turning scores into probabilities over a vocabulary). Audio generation is literally next-token prediction over a *sound* vocabulary.
+- **From Phase 6 you need:** the big idea that **any signal can become tokens** and join the same sequence. Last phase it was image patches; this phase it's sound.
+- **From Phase 2 you need:** comfort with multiple training targets / masked losses — here we predict audio *and* control tags at once.
+- **High-school algebra is enough:** no signal-processing background assumed; terms like *waveform* and *codec* are defined as they appear.
+
+A *waveform* is just the up-and-down air-pressure signal of sound, sampled as a long list of numbers.
+
+<!-- notes: Lower the intimidation factor — many students assume audio requires a DSP background. It does not. The only true prerequisite is the next-token-prediction loop from Phase 1, plus the tokenize-any-modality mindset from Phase 6. Stress the parallel: text predicts the next word, audio predicts the next codec token, and the math (softmax over a vocabulary) is identical. Define waveform and codec on the slides so nobody is lost. -->
+
+---
+
 ## Learning objectives
 
 - Contrast **half-duplex** vs **full-duplex**
@@ -63,6 +78,8 @@ Full-duplex enables:
 ---
 
 ## From Waveforms to Tokens
+
+A *neural codec* is a learned compressor (encode → tiny discrete codes → decode) — like MP3, but the codes are tokens an LLM can read.
 
 The audio codec pipeline:
 
@@ -172,6 +189,8 @@ Both predicted at every time step (~12.5 Hz).
 ---
 
 ## Voice Activity Detection Tags
+
+*Voice Activity Detection (VAD)* = deciding, moment to moment, whether someone is speaking or silent. A *state machine* is a set of named states with rules for moving between them.
 
 Four tags form a **state machine** for conversation control:
 
@@ -312,6 +331,35 @@ In lab, students will:
 4. Full-duplex voice AI is the **same autoregressive framework** as text — just different tokens
 
 <!-- notes: The unification theme continues from Phase 6. Text, images, and now audio — all tokenized, all processed by the same transformer, all generated with next-token prediction. This is the power of the discrete token abstraction. Phase 8 will add the final piece: memory that persists across the entire conversation. -->
+
+---
+
+## Bridge to the Next Phase
+
+Real conversations don't end — they **go on and on**. A long phone call produces a huge stream of audio tokens, and (from Phase 5) you know the **KV cache grows with every token**.
+
+- Streaming audio makes contexts *effectively unbounded* — you can't keep every token forever.
+- We need a way to **remember what matters** (the user's name, the request) while **forgetting filler** ("uh-huh", silence).
+- That is exactly what **Phase 8 (Titans)** delivers: a memory that updates *while* you talk and stays a fixed size no matter how long the conversation runs.
+
+So: full-duplex audio creates the *need* for endless memory — Phase 8 provides it.
+
+<!-- notes: Motivate Phase 8 by making the pain concrete. Audio is the most token-hungry modality so far: a continuous conversation never stops producing tokens. Even with TurboQuant from Phase 5, a linear-growing cache eventually loses. This sets up the central promise of Titans — O(1) memory that learns at test time. The emotional beat: we've built something that can talk forever, but it can't yet remember forever. Phase 8 closes that gap. -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- van den Oord, Vinyals, & Kavukcuoglu (2017). *Neural Discrete Representation Learning (VQ-VAE)*. NeurIPS.
+- Zeghidour et al. (2021). *SoundStream: An End-to-End Neural Audio Codec*. IEEE/ACM TASLP.
+- Défossez et al. (2022). *High Fidelity Neural Audio Compression (EnCodec)*. arXiv:2210.13438.
+- Borsos et al. (2022). *AudioLM: a Language Modeling Approach to Audio Generation*. arXiv:2209.03143.
+- Wang et al. (2023). *Neural Codec Language Models are Zero-Shot Text to Speech Synthesizers (VALL-E)*. arXiv:2301.02111.
+- Défossez et al. (2024). *Moshi: a speech-text foundation model for real-time dialogue*. arXiv:2410.00037.
+
+<!-- notes: Map the readings to the lecture. VQ-VAE is the origin of discrete codes; SoundStream and EnCodec are the actual neural codecs whose tokens we use. AudioLM and VALL-E show language-modeling over audio tokens. Moshi is the full-duplex dual-stream system that directly inspired this phase's barge-in architecture. All optional — point curious students to Moshi first since it ties the whole phase together. -->
 
 ---
 

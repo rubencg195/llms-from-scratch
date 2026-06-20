@@ -14,6 +14,14 @@ kernelspec:
 
 **Goal:** Understand `requires_grad`, forward/backward passes, and one optimizer step on a toy linear model.
 
+## What You Need to Know First
+
+- **Tensors and basic tensor math** (Section 0.1) — especially creating tensors and doing arithmetic on them.
+- **The dot product / matrix multiply** (Section 0.2) — the `x @ w` step that turns inputs into a prediction.
+- **The high-school idea of a slope** — a *gradient* is just "how steeply the error changes if I nudge a number," i.e. a slope.
+
+Everything here builds directly on Sections 0.1 and 0.2, so no new outside knowledge is needed. Jargon like *gradient*, *backpropagation*, and *optimizer* is explained in plain words as it comes up. (A **gradient** is a slope that says which direction to push each weight to make the error smaller; **backpropagation** is just applying that slope rule backwards through the calculation.)
+
 ## The training loop skeleton
 
 1. Forward → prediction  
@@ -233,6 +241,10 @@ print(f"\nLearned: y = {a.item():.3f}x² + {b_param.item():.3f}x + {c.item():.3f
 print(f"True:    y = 0.500x² + -1.500x + 2.000")
 ```
 
+## Where This Leads Next
+
+You can now train a model with two parameters. Section 0.4 keeps the exact same loop (forward → loss → backward → step) but swaps the toy `w` and `b` for a real **`nn.Linear` layer** stacked with a non-linearity — the actual building block that every Transformer is made of.
+
 ## Key Takeaway
 
 - **Autograd** builds a computation graph during the forward pass and uses the chain rule during `backward()` to compute all gradients automatically.
@@ -244,3 +256,11 @@ print(f"True:    y = 0.500x² + -1.500x + 2.000")
 ## Checkpoint
 
 You understand autograd, gradient descent, and learning rate dynamics. Next: **building your first neural layer** (Section 0.4) — stacking linear operations with non-linearities.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Rumelhart, Hinton, & Williams (1986). *Learning representations by back-propagating errors*. Nature.
+- Baydin et al. (2018). *Automatic Differentiation in Machine Learning: a Survey*. JMLR.
+- Kingma & Ba (2015). *Adam: A Method for Stochastic Optimization*. ICLR.

@@ -14,6 +14,22 @@ Train the model to tolerate low-precision weights and activations.
 
 ---
 
+## Before You Begin (Prerequisites)
+
+Everything below comes from earlier phases or high-school math — nothing external required.
+
+- **The Phase 2 instruct model** — `phase2_instruct.pt`, the checkpoint we will compress. We do not build a new model.
+- **The training loop with autograd** — forward, loss, `backward()`, optimizer step (Phase 0). QAT just wraps the forward pass with extra "rounding" nodes.
+- **Gradients & the chain rule idea** — autograd distributes blame to each weight (Phase 0). The Straight-Through Estimator is a tiny tweak to this.
+- **Data mixing** — training on several datasets at once (Phase 2). Reused here to prevent forgetting.
+- **High-school arithmetic** — rounding, division, and the line $y = mx + b$. Quantization is literally rescaling-and-rounding.
+
+> The math in this phase is the most concrete in the course: scaling and rounding numbers. If you can round to the nearest integer, you can follow QAT.
+
+<!-- notes: This phase is reassuringly concrete — it's arithmetic, not abstract attention. Emphasize that quantization is just mapping floats onto a small grid of integers (rescale, then round), then mapping back. Every prerequisite is from Phase 0–2: the model checkpoint, the training loop, autograd, and the data-mixing trick. No signal processing or hardware background is assumed. -->
+
+---
+
 ## Learning objectives
 
 - Understand **number representations** (FP32, FP16, INT8, INT4)
@@ -291,7 +307,7 @@ QAT training data:
 | Hyperparameter | Value | Notes |
 |----------------|-------|-------|
 | Base checkpoint | `phase2_instruct.pt` | Start from instruct model |
-| Quantization | INT4 weights, INT8 activations | W4A8 scheme |
+| Quantization | INT4 weights, INT8 activations | W4A8 scheme (W4 = 4-bit weights, A8 = 8-bit activations) |
 | Granularity | Per-channel (weights) | Per-token (activations) |
 | Learning rate | 1e-5 | Very gentle — preserve knowledge |
 | Epochs | 2 | Short — we're adapting, not retraining |
@@ -342,11 +358,21 @@ INT4 (with QAT): "The answer is 105."    ✓ (adapted to rounding)
 ```
 
 **Metrics to track:**
-- Perplexity on TinyStories validation (should increase by <10%)
+- Perplexity (a measure of how "surprised" the model is by the correct next token — lower is better) on TinyStories validation (should increase by <10%)
 - GSM8K accuracy (should decrease by <5 percentage points)
 - JSON parse rate for tool calls (should remain >90%)
 
 <!-- notes: The quality check is essential. Students should run the same evaluation suite on both the FP16 and QAT models to see the tradeoff quantitatively. The goal is not zero degradation — some quality loss is expected and acceptable. The question is whether the 4× compression is worth the small accuracy drop. For most deployment scenarios, it absolutely is. -->
+
+---
+
+## Bridge to the Next Phase
+
+**What you built in Phase 3:** a quantization-aware model (`phase3_qat.pt`) that survives 4-bit rounding — you learned number formats, min-max quantization, fake quantization, the Straight-Through Estimator, and used data mixing to avoid catastrophic forgetting.
+
+**The thread into Phase 4:** Phase 3 made each parameter *cheaper* (fewer bits). Phase 4 attacks the same efficiency goal from the opposite direction — it adds *more* parameters but only activates a few per token. The bridge concept is the **feed-forward network (FFN)**: the per-token, per-layer block you quantized here is exactly the block Phase 4 replaces with multiple "expert" FFNs plus a router. And the **per-channel / per-token thinking** from quantization — treating different parts of the network separately — previews the routing idea of sending different tokens to different experts.
+
+<!-- notes: Connect efficiency-via-fewer-bits (Phase 3) to efficiency-via-sparsity (Phase 4) — two complementary ways to fit more model on the RTX 3080. The concrete hook is the FFN: Phase 3 quantizes the dense FFN; Phase 4 swaps it for several expert FFNs with a router. Both phases share the mindset of treating the network's parts non-uniformly (per-channel scales -> per-token routing). The phase3_qat model isn't the direct input to Phase 4, but the FFN understanding is. -->
 
 ---
 
@@ -362,3 +388,17 @@ Preview:
 - Specialization tracking: does the math expert handle math?
 
 <!-- notes: Phase 4 is the architectural innovation phase. Phases 1-3 were about building, teaching, and compressing a standard dense Transformer. Phase 4 introduces conditional computation — the idea that not every parameter needs to be active for every token. This is how models like Mixtral achieve GPT-3.5-level performance at a fraction of the inference cost. -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- Jacob et al. (2018). *Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference*. CVPR.
+- Bengio, Léonard, & Courville (2013). *Estimating or Propagating Gradients Through Stochastic Neurons (Straight-Through Estimator)*. arXiv:1308.3432.
+- Nagel et al. (2021). *A White Paper on Neural Network Quantization*. arXiv:2106.08295.
+- Dettmers et al. (2022). *LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale*. NeurIPS.
+- Frantar et al. (2022). *GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers*. arXiv:2210.17323.
+
+<!-- notes: Strictly optional. Jacob et al. is the foundational QAT paper; Bengio et al. introduced the Straight-Through Estimator we use for round() gradients; the Nagel white paper is an excellent practical survey; LLM.int8() and GPTQ are influential LLM-specific quantization methods. Everything needed is already in the slides. -->

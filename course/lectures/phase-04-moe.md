@@ -12,6 +12,22 @@ author: "LLMs From Scratch"
 
 ---
 
+## Before You Begin (Prerequisites)
+
+Everything you need was taught in earlier phases — no outside material required.
+
+- **The feed-forward network (FFN)** — the per-token block `GELU(xW₁+b₁)W₂+b₂` inside every Transformer layer (Phase 1). MoE replaces this one block with several copies.
+- **Softmax** — turns raw scores into probabilities that sum to 1 (Phase 1). The router uses it to pick an expert.
+- **The dot product / linear layer** — $y = mx + b$ at scale (Phase 0). The router is just one small linear layer.
+- **The loss + autograd training loop** — forward, loss, `backward()`, optimizer step (Phase 0). MoE adds one extra loss term (load balancing) to this same loop.
+- **Total vs. active compute intuition** — the VRAM budgeting mindset from Phases 1–3.
+
+> If you understood the FFN and softmax from Phase 1, MoE is mostly "run several FFNs and let a softmax router choose."
+
+<!-- notes: Ground everything in Phase 1's FFN and softmax. An MoE layer is N copies of the Phase 1 FFN plus a tiny softmax router (one linear layer, exactly the y=mx+b from Phase 0). The training loop is unchanged except for an added load-balancing loss term. No new prerequisites beyond Phases 0-1; no external reading needed. -->
+
+---
+
 ## Learning objectives
 
 - Understand the **scaling problem** with dense models
@@ -102,6 +118,8 @@ Top-1:         Expert 0 selected (p=0.52)
                 ↓
 Output:        y = p₀ · Expert₀(h) = 0.52 · Expert₀(h)
 ```
+
+Here the **logits** are the router's raw, pre-softmax scores for each expert; softmax turns them into the selection probabilities.
 
 **Top-1 vs Top-2 routing:**
 
@@ -299,7 +317,7 @@ Expert 3: General-purpose (function words, punctuation)
 - Log which expert each token routes to
 - Aggregate by **topic** (classify tokens by source dataset)
 - Build a confusion matrix: `expert × topic`
-- Measure **mutual information** between routing and topic
+- Measure **mutual information** (a number for how much knowing the topic tells you which expert fires) between routing and topic
 
 **Reality check:** With only 4 experts, specialization is coarse. With 128 experts (Switch), individual experts can specialize in things like "French cooking vocabulary" or "legal terminology."
 

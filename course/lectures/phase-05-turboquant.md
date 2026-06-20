@@ -10,6 +10,20 @@ author: "LLMs From Scratch"
 
 ---
 
+## Before You Begin (Prerequisites)
+
+Everything you need was taught in earlier phases — **no outside knowledge required**.
+
+- **From Phase 1 you need:** attention (Query/Key/Value vectors) and the **KV cache** concept — the stored Keys and Values that let the model avoid recomputing past tokens.
+- **From Phase 0 you need:** tensors and basic matrix multiplication — that's all the "math" here really is.
+- **High-school algebra is enough:** if you can read $x_q = \text{round}(\dots)$ and picture a number line, you're ready.
+
+New terms like *quantization*, *outliers*, and *orthogonal rotation* are all defined on the slides as they appear. Relax — we build up slowly.
+
+<!-- notes: Reassure students here. The only hard prerequisite is comfort with the KV cache from Phase 1 — if they remember that the model stores Keys and Values for every past token, they have what they need. Everything else (quantization, rotation) is introduced from scratch in this deck. Emphasize that the equations look scarier than they are: they are mostly rounding and multiplication. -->
+
+---
+
 ## Learning objectives
 
 - Diagnose **KV cache VRAM** growth
@@ -86,6 +100,8 @@ Compression lets a $1,600 GPU do what a $30,000 GPU does naively.
 ---
 
 ## Outliers break naive quantization
+
+*Quantization* = storing numbers with fewer bits by snapping them to a small set of allowed values (like rounding prices to the nearest 5 cents). *Outliers* = a few unusually large values that stretch the scale.
 
 **Min-max quantization**: map $[\min, \max] \to [0, 2^b - 1]$
 
@@ -214,7 +230,7 @@ $302 \text{ MB} \div 4.57 \approx 66 \text{ MB}$ — now 8k context fits easily 
 
 At 16k tokens: $604 \div 4.57 \approx 132$ MB. Still fine.
 
-<!-- notes: This is the practical payoff. We went from "8k doesn't fit" to "16k fits comfortably" with a single technique. Combine with grouped-query attention (GQA) or multi-query attention (MQA) and you can push even further. The frontier labs stack all these techniques. -->
+<!-- notes: This is the practical payoff. We went from "8k doesn't fit" to "16k fits comfortably" with a single technique. Combine with grouped-query attention (GQA — several attention heads share one set of Keys/Values to shrink the cache) or multi-query attention (MQA — all heads share one set) and you can push even further. The frontier labs stack all these techniques. -->
 
 ---
 
@@ -253,7 +269,7 @@ Depth↓ \ Length→   1k    2k    4k    8k
 | Scale overflow | NaN in attention | Use per-head scaling |
 | Group size mismatch | Accuracy drops at boundaries | Align groups to head dim |
 
-Always compare **perplexity** with and without quantization on a held-out set.
+Always compare **perplexity** (a score of how "surprised" the model is by text — lower is better) with and without quantization on a held-out set.
 
 <!-- notes: Debugging quantized models can be tricky because failures are often silent — the model produces fluent but wrong text. Always have a quantitative eval (perplexity + needle test) alongside qualitative inspection. -->
 
@@ -280,6 +296,37 @@ Always compare **perplexity** with and without quantization on a held-out set.
 4. **Needle-in-a-Haystack** is the gold-standard eval for long-context fidelity
 
 <!-- notes: The techniques in this phase are directly applicable to production. Every major inference framework (vLLM, TensorRT-LLM, llama.cpp) has some form of KV cache quantization. Understanding the math here means you can debug and improve these systems. -->
+
+---
+
+## Bridge to the Next Phase
+
+You just learned to **shrink the KV cache** so longer sequences fit in 10 GB. Why does that matter for **Phase 6 (multimodal)**?
+
+- In Phase 6, every image becomes a string of **patch tokens** added to the sequence — a single picture can cost dozens or hundreds of extra tokens.
+- More tokens → a **bigger KV cache**. The compression skills from this phase are exactly what keep image + text sequences affordable.
+- Same idea, new payload: Phase 5 squeezed *text* memory; Phase 6 adds *vision* into that same memory budget.
+
+So: **efficient memory is the runway** that lets us bolt on new modalities next.
+
+<!-- notes: The goal of this bridge is to make students feel the phases connect, not stand alone. The KV cache is the shared resource across every later phase. Once images turn into patch tokens (Phase 6) and audio turns into codec tokens (Phase 7), they all flow through the same attention and the same cache we just learned to compress. Frame Phase 5 as the "memory budget" phase that everything afterward spends from. -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- Ainslie et al. (2023). *GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints*. EMNLP.
+- Chee et al. (2023). *QuIP: 2-Bit Quantization of Large Language Models With Guarantees*. NeurIPS.
+- Tseng et al. (2024). *QuIP#: Even Better LLM Quantization with Hadamard Incoherence and Lattice Codebooks*. ICML.
+- Ashkboos et al. (2024). *QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs*. arXiv:2404.00456.
+- Liu et al. (2024). *KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache*. ICML.
+- Kamradt (2023). *Needle In A Haystack — Pressure Testing LLMs*. (GitHub: gkamradt/LLMTest_NeedleInAHaystack)
+
+*Aside:* "PolarQuant/TurboQuant" in this course are **teaching names** for the rotation-then-quantize family pioneered by **QuIP#/QuaRot**.
+
+<!-- notes: Keep the pressure off — these are enrichment, not homework. If a student is curious where our "PolarQuant" and "TurboQuant" names come from, point them to QuIP# and QuaRot, which introduced the rotate-then-quantize trick we teach. KIVI is the closest real analog to our KV-cache-specific quantization, and Kamradt's Needle-in-a-Haystack is the eval we use in Lab 5.4. -->
 
 ---
 

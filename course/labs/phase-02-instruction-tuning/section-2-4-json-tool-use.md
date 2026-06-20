@@ -14,6 +14,18 @@ kernelspec:
 
 **Goal:** Format Glaive-style function-calling examples and validate JSON tool payloads at decode time.
 
+## What You Need to Know First
+
+This section reuses the chat-formatting and masked-loss ideas from earlier in Phase 2 and adds one new data format. Nothing outside the course is assumed.
+
+- **Chat templates and masked loss** (Sections 2.1–2.3) — the assistant turn is still the only part we train on; here that turn must be valid JSON.
+- **JSON** — a simple text format for structured data using `{ }` for key-value pairs, the same shape as a Python dictionary (e.g. `{"name": "calculator", "arguments": {...}}`).
+- **A schema** — just a description of which fields are allowed and which are required for a given tool.
+- **Decode time** — the moment the model is generating text token-by-token, as opposed to training time.
+- **Glaive** — a public dataset of example "function-calling" conversations we use as training data.
+
+If you can read a Python dictionary, you already understand JSON well enough for this lab.
+
 ## Why Tool Use Matters for LLMs
 
 Language models are powerful reasoners but have fundamental limitations:
@@ -439,6 +451,10 @@ direct_result = run_unit_converter({"value": 100, "from_unit": "celsius", "to_un
 print(f"\n100°C → °F: {direct_result}")
 ```
 
+## Where This Leads Next
+
+This wraps up Phase 2: your model can now follow instructions, reason step by step, and call tools. Phase 3 changes goals entirely — instead of making the model *smarter*, we make it *smaller* and cheaper to run through quantization, starting with the math of compression in Section 3.1.
+
 ---
 
 ## Key Takeaway
@@ -452,3 +468,10 @@ Tool use transforms LLMs from pure text generators into **agents** that can inte
 5. **Constrained decoding** — logit biasing or grammar-based sampling at generation time increases the probability of syntactically valid JSON
 
 The model doesn't "understand" tools — it learns statistical patterns mapping questions to JSON structures. The quality depends entirely on training data diversity and format consistency.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Schick et al. (2023). *Toolformer: Language Models Can Teach Themselves to Use Tools*. NeurIPS.
+- Qin et al. (2023). *ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs*. arXiv:2307.16789.

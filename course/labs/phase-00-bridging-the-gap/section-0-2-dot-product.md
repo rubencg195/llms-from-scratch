@@ -14,6 +14,14 @@ kernelspec:
 
 **Goal:** Implement dot products manually and with `@` / `torch.matmul`, and connect them to cosine similarity.
 
+## What You Need to Know First
+
+- **Tensors and how to slice/reshape them** (from Section 0.1) — vectors are just 1-D tensors and matrices are 2-D tensors.
+- **Element-wise multiplication and `.sum()`** on tensors, which you also met in Section 0.1.
+- **The high-school idea of an angle between two arrows** — you do not need trigonometry, just the picture.
+
+All of these were covered earlier (Section 0.1), so no outside knowledge is required. New terms like *cosine similarity* and *softmax* are explained in plain words right where they appear below.
+
 ## Definition
 
 For vectors $\mathbf{a}$ and $\mathbf{b}$ of length $n$:
@@ -47,7 +55,7 @@ $$\mathbf{a} \cdot \mathbf{b} = \|\mathbf{a}\| \|\mathbf{b}\| \cos\theta$$
 
 where $\theta$ is the angle between the vectors. This means:
 - **Positive** dot product → vectors point in roughly the same direction ($\theta < 90°$)
-- **Zero** dot product → vectors are orthogonal ($\theta = 90°$)
+- **Zero** dot product → vectors are orthogonal, meaning they point at a perfect right angle to each other ($\theta = 90°$)
 - **Negative** dot product → vectors point in opposite directions ($\theta > 90°$)
 
 ```python
@@ -138,7 +146,7 @@ print("Manual check:", torch.allclose(output[0], torch.dot(W[0], x)))
 
 ## Cosine similarity
 
-Normalize vectors, then dot product → value in $[-1, 1]$.
+**Cosine similarity** is the dot product after both vectors are *normalized* (rescaled to length 1). Normalizing throws away how *big* the vectors are and keeps only the *direction*, so the result always lands in $[-1, 1]$: 1 means "same direction," 0 means "unrelated," and −1 means "opposite."
 
 ```python
 def cosine_sim(x, y, eps=1e-8):
@@ -254,6 +262,10 @@ for idx, sim in zip(top5.indices.tolist(), top5.values.tolist()):
     print(f"  {vocab[idx]:>10s}: cosine = {sim:.3f}")
 ```
 
+## Where This Leads Next
+
+The dot product is the "similarity" half of how networks learn. In Section 0.3 you will meet the other half: **autograd**, PyTorch's machinery for automatically figuring out how to nudge numbers so predictions improve. Together, similarity scores and automatic gradients are everything a model needs to learn.
+
 ## Key Takeaway
 
 - The **dot product** measures how aligned two vectors are — it is the atomic similarity operation in all of deep learning.
@@ -265,3 +277,10 @@ for idx, sim in zip(top5.indices.tolist(), top5.values.tolist()):
 ## Checkpoint
 
 You understand dot products as similarity, matrix multiply as batched dots, and softmax as the "focus selector." Next: **autograd** (Section 0.3) — how PyTorch automatically computes gradients to learn.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Strang (2016). *Introduction to Linear Algebra, 5th ed.*. Wellesley-Cambridge Press.
+- Vaswani et al. (2017). *Attention Is All You Need*. NeurIPS. (dot-product attention)

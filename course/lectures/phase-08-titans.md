@@ -10,6 +10,22 @@ author: "LLMs From Scratch"
 
 ---
 
+## Before You Begin (Prerequisites)
+
+This capstone reuses the whole course — **no external knowledge required**.
+
+- **From Phase 0 you need:** *gradient descent* — adjusting weights a little in the direction that lowers the loss. Titans does this *during inference*, but it's the same one step you've done since day one.
+- **From Phase 1 you need:** *attention* and the *KV cache* — the "short-term memory" Titans sits alongside.
+- **From Phase 5 you need:** the pain that **the KV cache grows with context** — Titans is the fix.
+- **From Phases 6–7 you need:** the habit of stacking new modules onto the same transformer; here we add a memory module.
+- **High-school algebra is enough:** the update is one line, $\theta_{t+1} = \theta_t - \eta \nabla_\theta \mathcal{L}$, which just means "nudge the weights downhill."
+
+A *gradient* is simply the direction of steepest increase; we step the opposite way to improve.
+
+<!-- notes: This is the capstone, so the prerequisite list is intentionally a recap of the arc. The single most important prerequisite is gradient descent from Phase 0 — students already know it; the only twist is that Titans runs it at inference time on a tiny memory network. Reassure them that the scary-looking TTT equation is the exact same update rule from training, just applied per token during chat. Everything else (attention, KV cache, modular stacking) they've practiced for seven phases. -->
+
+---
+
 ## Learning objectives
 
 - **Test-Time Training (TTT):** gradient updates during inference
@@ -45,7 +61,7 @@ Even with Phase 5's TurboQuant (4.57× compression), 256k tokens need 2.1 GB jus
 
 ## Meta-Learning Meets Inference
 
-**Test-Time Training (TTT)** is inner-loop optimization during inference — a concept from meta-learning.
+**Test-Time Training (TTT)** is inner-loop optimization during inference — a concept from *meta-learning* (training a model to be good at *learning new things quickly*, i.e. "learning to learn").
 
 Connection to MAML/Reptile:
 
@@ -140,7 +156,7 @@ Where $\tau$ is a threshold (learned or fixed).
 
 ## Momentum and decay: controlled forgetting
 
-Raw gradient updates accumulate without bound. **Exponential moving average (EMA)** provides stability:
+Raw gradient updates accumulate without bound. **Exponential moving average (EMA)** — a running average that weights recent values more than old ones — provides stability:
 
 $$M_{t+1} = \beta M_t + (1-\beta) \Delta_t$$
 
@@ -283,6 +299,23 @@ Facts require **multi-hop reasoning** across the memory.
 
 ---
 
+## Bridge: Course Capstone
+
+This is the end of the road — so let's connect the whole journey, **Phase 0 → Phase 8**.
+
+- **Phase 0–1:** you learned *gradient descent* and built *attention* — the engine and the short-term memory.
+- **Phase 2–3:** you made the model *follow instructions* and *align* to human preferences — turning a predictor into an assistant.
+- **Phase 4:** *Mixture-of-Experts* let it scale capacity without scaling cost.
+- **Phase 5:** *TurboQuant* compressed the KV cache so long contexts fit on small GPUs.
+- **Phase 6–7:** you tokenized *vision* and *audio*, proving the transformer is a universal sequence engine.
+- **Phase 8:** *Titans* adds long-term memory that **learns at test time**, so the model can remember forever in O(1) space.
+
+Every phase fed the next: gradients → attention → chat → alignment → scale → efficient memory → new senses → living memory. **You now hold the complete 2026 frontier stack.**
+
+<!-- notes: This is the emotional and intellectual payoff of the entire course. Walk students back through the dependency chain explicitly so they see it was never a pile of disconnected tricks — each phase was a prerequisite for the next. Gradient descent (Phase 0) is literally the mechanism that powers Titans' test-time training (Phase 8), closing the loop. End on empowerment: they didn't just learn about LLMs, they built every layer of one. -->
+
+---
+
 ## Capstone
 
 You built an 80M stack from tensors to **live-updating memory** — the 2026 frontier.
@@ -290,3 +323,19 @@ You built an 80M stack from tensors to **live-updating memory** — the 2026 fro
 Congratulations. You now understand, at implementation depth, every major component of a modern LLM.
 
 <!-- notes: This is a genuine accomplishment. Most ML engineers use LLMs as black boxes. Students in this course have built every component from scratch: autograd, attention, training loops, alignment, quantization, multimodal processing, audio generation, and neural memory. They can debug, modify, and improve any part of the stack. That's the difference between using a tool and understanding a tool. -->
+
+---
+
+## Further Reading (Optional)
+
+**These papers are optional enrichment — you do NOT need to read any of them to continue the course.**
+
+- Graves, Wayne, & Danihelka (2014). *Neural Turing Machines*. arXiv:1410.5401.
+- Finn, Abbeel, & Levine (2017). *Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks (MAML)*. ICML.
+- Katharopoulos et al. (2020). *Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention*. ICML.
+- Gu & Dao (2023). *Mamba: Linear-Time Sequence Modeling with Selective State Spaces*. arXiv:2312.00752.
+- Sun et al. (2024). *Learning to (Learn at Test Time): RNNs with Expressive Hidden States*. arXiv:2407.04620.
+- Behrouz, Zhong, & Mirrokni (2024). *Titans: Learning to Memorize at Test Time*. arXiv:2501.00663.
+
+<!-- notes: This is the final reading list of the whole course, so frame it as a launchpad into research, not an assignment. Neural Turing Machines is the ancestor of learnable memory; MAML is the meta-learning foundation behind test-time training; Linear Attention and Mamba are the efficient-sequence-model lineage; the Sun et al. TTT paper and the Behrouz et al. Titans paper are the direct sources for everything we built this phase. A motivated student can now read Titans end to end and recognize every idea. All optional. -->
+

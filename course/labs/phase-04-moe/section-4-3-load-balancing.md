@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Add auxiliary loss encouraging uniform expert utilization (Switch Transformer style).
 
+## What You Need to Know First
+
+This section is mostly about adding one extra term to the loss. You already have all the building blocks:
+
+- **The router and experts** from Sections 4.1–4.2 — and the fact that the router learns only from the loss.
+- **A loss function** — a single number measuring "how wrong" the model is, which we make smaller during training.
+- **Adding up a probability** — the only math here is averaging numbers and multiplying two averages together; high-school algebra is enough.
+- **An "auxiliary loss"** simply means a *second*, helper loss added on top of the main one to encourage good behavior (here: even use of experts).
+
+No external background is needed — just these ideas.
+
 ## The Expert Collapse Problem
 
 Without any balancing incentive, MoE training frequently **collapses** — the router learns
@@ -42,7 +53,8 @@ The Switch Transformer paper (Fedus et al., 2021) introduces an auxiliary loss w
 components. Let's derive it step by step.
 
 **Setup:** We have $E$ experts, a batch of $N = B \times T$ tokens, router probabilities
-$p_{i,e}$ for token $i$ and expert $e$, and hard routing decisions $c_i = \arg\max_e p_{i,e}$.
+$p_{i,e}$ for token $i$ and expert $e$, and hard routing decisions $c_i = \arg\max_e p_{i,e}$
+(the $\arg\max$ just picks *which* expert has the highest probability for that token).
 
 **Step 1 — Fraction of tokens routed to each expert:**
 
@@ -305,6 +317,10 @@ for cf in [0.5, 0.75, 1.0, 1.25, 1.5, 2.0]:
 
 ---
 
+## Where This Leads Next
+
+With load balancing in place, your experts will finally each receive a fair share of tokens. In **Section 4.4** you will study the *payoff*: tracking how those balanced experts naturally **specialize** — learning to handle different kinds of text (for example prose vs. structured data).
+
 ## Key Takeaway
 
 Expert collapse — where the router funnels all tokens to one expert — is the central failure
@@ -313,3 +329,10 @@ provides a differentiable incentive for uniform utilization. The coefficient $\a
 tuned carefully: too low allows collapse, too high forces uniform-random routing that
 prevents specialization. Monitoring expert utilization histograms during training is
 essential for diagnosing MoE health.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Fedus, Zoph, & Shazeer (2021). *Switch Transformers* (load balancing loss). JMLR.
+- Zoph et al. (2022). *ST-MoE: Designing Stable and Transferable Sparse Expert Models*. arXiv:2202.08906.

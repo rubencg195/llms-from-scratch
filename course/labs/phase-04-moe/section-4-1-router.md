@@ -14,6 +14,17 @@ kernelspec:
 
 **Goal:** Map each token hidden state to expert probabilities and select top-1 expert.
 
+## What You Need to Know First
+
+Everything here builds on ideas you have already met earlier in the course — you do **not** need any new outside knowledge:
+
+- **A linear layer** (`nn.Linear`) — just a learnable matrix multiply that turns a vector of numbers into another vector of numbers.
+- **Softmax** — the function that turns a list of raw scores into probabilities that are all positive and add up to 1.
+- **A token's hidden state** — the vector of numbers that represents one word/token as it flows through the model.
+- **Gradients and backpropagation** — how the model nudges its weights to reduce the loss. That is the only "training signal" the router ever gets.
+
+If those four ideas feel familiar, you are fully prepared for this section.
+
 ## The Hospital Triage Analogy
 
 Imagine a busy hospital emergency room. Every patient who walks in first meets a **triage nurse** —
@@ -21,14 +32,14 @@ a single person whose job is not to treat anyone, but to quickly assess each pat
 **which specialist** should see them. A patient with chest pain goes to cardiology; a broken arm
 goes to orthopedics; a skin rash goes to dermatology.
 
-A **router** in a Mixture-of-Experts model works exactly the same way:
+A **router** in a Mixture-of-Experts model (an "MoE" — a model that holds several small sub-networks called *experts* and uses only a few of them per token) works exactly the same way:
 
 | Hospital | MoE Model |
 |----------|-----------|
 | Patient arrives | Token hidden state enters the MoE layer |
 | Triage nurse examines symptoms | Router's linear layer projects the hidden state |
 | Nurse assigns a specialist | Softmax picks the highest-probability expert |
-| Specialist treats the patient | Selected expert FFN processes the token |
+| Specialist treats the patient | Selected expert FFN (feed-forward network — the standard two-linear-layer block) processes the token |
 
 The router itself is tiny — just a single `nn.Linear(d_model, n_experts)` — but its decisions
 determine the entire computation graph. Every other parameter in the layer is gated by this
@@ -243,6 +254,10 @@ print("Top-2 expert selections (batch 0):", top2_idx[0].tolist())
 
 ---
 
+## Where This Leads Next
+
+Now that the router can decide *which* expert should handle each token, the next step is to actually build those experts. In **Section 4.2** you will create four parallel expert sub-networks and wire them to this router, getting the capacity of a much bigger model while paying the compute cost of a small one.
+
 ## Key Takeaway
 
 The **router** is the decision-maker of MoE — a single linear layer followed by softmax that
@@ -253,3 +268,10 @@ per token but gives the router richer learning signals. In either case, the rout
 pattern through backpropagation, not through any explicit labeling.
 
 Next lab replaces per-expert Python loop with batched masking for GPU efficiency.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Shazeer et al. (2017). *Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer*. ICLR.
+- Fedus, Zoph, & Shazeer (2021). *Switch Transformers*. JMLR.

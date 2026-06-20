@@ -14,6 +14,16 @@ kernelspec:
 
 **Goal:** Compare parameter and activation memory for ViT+LLM vs encoder-free patch pipeline.
 
+## What You Need to Know First
+
+Everything here builds on ideas you already met in Phases 1–5 — no outside knowledge needed:
+
+- **Parameters and `nn.Linear`** — a layer's "weights" are just numbers the model learns. A linear layer holds `in × out + out` of them, which is exactly what we count below.
+- **VRAM** — the memory on your GPU. Both the model's weights *and* the temporary tensors created while training have to fit inside it.
+- **Embeddings and `d_model`** — every token is represented by a vector of length `d_model`; that shared width is the "language" all our components speak.
+
+If those feel familiar, you're ready. We use only basic arithmetic and a little PyTorch.
+
 ## From Text-Only to Multimodal
 
 Teaching LLMs to *see* is the next frontier in language modeling. A text-only model processes
@@ -22,7 +32,9 @@ world constantly references spatial relationships ("the cat *on* the left"), col
 and object identities that are expensive to describe in words but trivial to perceive visually.
 
 The dominant approach in production multimodal LLMs (LLaVA, GPT-4V, Gemini) is to bolt a
-**pre-trained Vision Transformer (ViT)** onto the LLM's input. This works, but it comes at
+**pre-trained Vision Transformer (ViT)** onto the LLM's input. (A ViT is just a transformer —
+the same architecture you already know — that was trained on images instead of text.) This
+works, but it comes at
 an enormous VRAM cost — the encoder alone can exceed 300M parameters and require dedicated
 activation memory. In this lab we quantify that cost and motivate the *encoder-free* design
 we will build instead: a single linear patch projector that turns raw pixels into LLM-compatible
@@ -242,6 +254,12 @@ print(f"  Extra tokens gained:   {max_tokens_proj - max_tokens_vit:,}")
 
 ---
 
+## Where This Leads Next
+
+Now that we've shown *why* a heavy vision encoder is too expensive, Section 6.2 builds the
+lightweight alternative: a single linear "patch projector" that turns raw pixels into vectors
+the LLM can read. The VRAM we just freed up is exactly what makes that encoder-free design possible.
+
 ## Key Takeaway
 
 Encoder-free multimodal design is not about laziness — it is a **VRAM-conscious architectural
@@ -250,3 +268,10 @@ decision**. By replacing a ViT encoder (86M–632M params) with a single linear 
 batch sizes, or additional modalities. The LLM itself learns to interpret raw patch vectors,
 making it both simpler and more memory-efficient. On a 10 GB budget, this is the difference
 between a 2K context window and a 50K+ context window.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Dosovitskiy et al. (2020). *An Image is Worth 16x16 Words (ViT)*. ICLR.
+- Radford et al. (2021). *Learning Transferable Visual Models From Natural Language Supervision (CLIP)*. ICML.

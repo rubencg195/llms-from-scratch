@@ -14,6 +14,13 @@ kernelspec:
 
 **Goal:** Move from Python lists to PyTorch tensors and perform element-wise math on CPU and GPU.
 
+## What You Need to Know First
+
+- **Basic Python lists** — how to make a list like `[1, 2, 3]` and a list of lists like `[[1, 2], [3, 4]]`.
+- **The algebra idea of a slope** — that a line like $y = 2x + 1$ goes up by a fixed amount for each step (we lean on this intuition later when numbers get scaled and shifted).
+
+This is the very first section, so that is genuinely all you need — no prior PyTorch, calculus, or machine-learning knowledge is assumed. ("Element-wise" just means an operation is applied to each number in the tensor separately.)
+
 ## What Is a Tensor, Really?
 
 Think of a tensor as a **spreadsheet that can have any number of dimensions**:
@@ -212,6 +219,10 @@ for i, n in enumerate(sizes):
         print(f"{n:<8} {cpu_ms:<12.2f} {'N/A':<12} {'N/A':<10}")
 ```
 
+## Where This Leads Next
+
+Now that you can build and slice tensors, the next section (0.2) introduces the single most important thing you can *do* with two tensors: the **dot product**. It is just "multiply matching numbers and add them up," and it turns out to be how neural networks measure similarity between vectors.
+
 ## Key Takeaway
 
 - **Tensors** are n-dimensional arrays optimized for GPU parallelism — they are the universal data structure of deep learning.
@@ -222,3 +233,10 @@ for i, n in enumerate(sizes):
 ## Checkpoint
 
 You can create tensors, move them to CUDA, index them, and reshape them. Next: **dot products** (Section 0.2) — the atomic operation that computes similarity between vectors.
+
+## Further Reading (Optional)
+
+**Optional — you do NOT need these to continue. They are for curious students who want the original sources.**
+
+- Paszke et al. (2019). *PyTorch: An Imperative Style, High-Performance Deep Learning Library*. NeurIPS.
+- Harris et al. (2020). *Array programming with NumPy*. Nature.
