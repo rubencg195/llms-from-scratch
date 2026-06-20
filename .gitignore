@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Export outputs (regenerate from source markdown)
+exports/
+*.pptx
+*.docx
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/settings.json
+
+# Data & checkpoints (students download separately)
+data/
+checkpoints/
+*.pt
+*.bin

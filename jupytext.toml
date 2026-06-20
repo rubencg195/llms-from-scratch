@@ -1,0 +1,11 @@
+# Jupytext configuration — labs in course/labs/**/*.md → .ipynb
+# Docs: https://jupytext.readthedocs.io/
+
+[formats]
+"course/labs/" = "md:light,ipynb"
+
+[default_jupytext_formats]
+"md:light" = true
+
+[cm]
+default_notebook_metadata_filter = "kernelspec"

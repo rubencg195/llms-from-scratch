@@ -1,0 +1,15 @@
+# Core course runtime (RTX 3080 / CUDA 12.x — adjust torch index if needed)
+torch>=2.2.0
+numpy>=1.26.0
+matplotlib>=3.8.0
+tiktoken>=0.7.0
+datasets>=2.18.0
+tqdm>=4.66.0
+pillow>=10.2.0
+soundfile>=0.12.1
+
+# Instructor export toolchain
+jupytext>=1.16.0
+jupyterlab>=4.0.0
+nbconvert>=7.16.0
+pypandoc-binary>=1.13.0
