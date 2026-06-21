@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PHASES, TOTAL_XP } from "@/data/curriculum";
-import { LABS, LECTURES } from "@/content";
+import { LABS } from "@/content";
 import { resetProgressStore } from "@/test/progress";
 import {
   ACHIEVEMENTS,
@@ -11,7 +11,6 @@ import {
   TOTAL_LABS,
   TOTAL_LECTURES,
   TOTAL_MAX_XP,
-  TOTAL_MODULES,
   levelForXp,
   useProgress,
 } from "./progress";

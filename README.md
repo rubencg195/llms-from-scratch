@@ -557,25 +557,39 @@ cd course/interactive
 npm install
 npm run dev        # http://localhost:5173
 npm test           # Vitest unit + component tests
-npm run test:watch # re-run tests on file changes
+npm run test:e2e   # Playwright browser interaction tests
+npm run test:all   # both suites
+npm run test:watch # re-run Vitest on file changes
+npm run test:e2e:ui # Playwright interactive UI mode
 # or: npm run build && npm run preview   (static build in dist/)
 ```
 
 ### Testing the interactive app
 
-Vitest + React Testing Library cover the gamification store, content loader, curriculum,
-routing, and key UI surfaces:
+**Vitest** (unit + component) and **Playwright** (end-to-end browser interactions) cover the gamified app:
 
-| Area | What is verified |
-|------|------------------|
-| `src/store/progress.ts` | XP, streaks, achievements, journey stats, `localStorage` persist/rehydrate |
-| `src/content.ts` | All 9 lectures + 39 labs load from markdown |
-| `src/data/curriculum.ts` | Phase/module structure, XP totals |
-| `src/modules/registry.tsx` | Every curriculum module has a playground component |
-| `src/lib/math.ts` | Shared math helpers |
-| `src/App.tsx` + pages | Routing (home, phase, lab, trophies), journey map, reset |
+```bash
+cd course/interactive
+npm test              # Vitest — fast, isolated
+npm run test:e2e      # Playwright — builds app, runs browser tests
+npm run test:all      # both
+npm run test:e2e:ui   # Playwright interactive UI mode
+```
 
-Progress is stored under the key `llms-interactive-progress` in `localStorage`; tests use an
+Playwright starts a production preview server automatically, clears `localStorage` before each test, and exercises real clicks, keyboard navigation, route transitions, XP/trophy persistence, and all 24 playground loads.
+
+| Area | Vitest | Playwright E2E |
+|------|--------|----------------|
+| `src/store/progress.ts` | XP, streaks, achievements, journey stats, persist/rehydrate | XP after lecture/lab/playground, reset, trophy unlocks |
+| `src/content.ts` | All 9 lectures + 39 labs load from markdown | Lecture slides, lab reader, markdown render |
+| `src/data/curriculum.ts` | Phase/module structure, XP totals | All 9 phase pages, 24 playground smoke loads |
+| `src/modules/registry.tsx` | Every module has a component | Mark complete, next/finish phase navigation |
+| Routing & layout | `App.tsx`, Home, Phase | Navbar, breadcrumbs, invalid routes, phase cards |
+| Gamification UI | — | Trophies, journey counters, sound toggle, full phase-0 flow |
+
+E2E specs live in `course/interactive/e2e/` (`navigation`, `home`, `progress`, `phase`, `lecture`, `lab`, `playground`, `trophies`, `journey-flow`).
+
+Progress is stored under the key `llms-interactive-progress` in `localStorage`; Vitest uses an
 in-memory storage shim so runs are isolated and do not touch your browser profile.
 
 The production build is fully static (relative `base`), so `dist/` can be dropped on any
@@ -589,7 +603,7 @@ static host or opened behind a simple file server.
 - **Persistence** — all progress is saved to `localStorage`; nothing leaves the device.
 - **Animated transitions** between phases, sections, and modules for a smooth, game-like flow.
 
-### The 23 playgrounds (mapped to the course)
+### The 24 playgrounds (mapped to the course)
 
 | Phase | Interactive modules |
 |-------|---------------------|
