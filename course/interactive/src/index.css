@@ -27,6 +27,10 @@
   100% { background-position: 200% 0; }
 }
 
+html {
+  overflow-x: hidden;
+}
+
 /* ---- Base ------------------------------------------------------------ */
 html, body, #root {
   height: 100%;
@@ -35,11 +39,13 @@ html, body, #root {
 
 body {
   margin: 0;
+  overflow-x: hidden;
   background: #000000;
   color: #e7ecff;
   font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
   isolation: isolate;
 }
 

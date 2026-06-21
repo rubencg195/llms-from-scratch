@@ -61,7 +61,7 @@ export default function Embeddings3D({ onDiscover }: ModuleProps) {
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
       <Panel title="Embedding space (drag to orbit)" hint="click any word">
-        <div className="h-[420px] overflow-hidden rounded-2xl bg-black/40">
+        <div className="h-[280px] overflow-hidden rounded-2xl bg-black/40 sm:h-[360px] lg:h-[420px]">
           <Canvas camera={{ position: [0, 0, 8], fov: 55 }}>
             <ambientLight intensity={0.8} />
             <pointLight position={[10, 10, 10]} />

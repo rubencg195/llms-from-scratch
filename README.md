@@ -1,6 +1,8 @@
-# LLMs From Scratch — Master Curriculum
+# LLMs From Scratch
 
-PhD-level course: demystify modern LLMs by building an ~80M-parameter stack on an RTX 3080 (10 GB VRAM), from $y = mx + b$ through Google's Titans architecture.
+Build an ~80M-parameter LLM stack on an RTX 3080 (10 GB VRAM), from $y = mx + b$ through Google's Titans architecture.
+
+**Live interactive app:** [rubenchevez.com/llms-from-scratch](https://rubenchevez.com/llms-from-scratch/) — browser app with lectures, labs, and playgrounds.
 
 **Source of truth:** Markdown in `course/lectures/` and `course/labs/`. Export to Word, PDF, PowerPoint, and JupyterLab 4 notebooks via the toolchain below.
 
@@ -156,7 +158,7 @@ llms-from-scratch/
     │   │   └── …
     │   └── phase-08-titans/
     │       └── section-8-6-vram-profiling.md
-    └── interactive/                   ← Gamified browser app (React + Tailwind + Three.js)
+    └── interactive/                   ← Browser app (React + Tailwind + Three.js)
         ├── package.json
         ├── index.html
         └── src/
@@ -192,7 +194,7 @@ llms-from-scratch/
 
 This course is **self-contained**. If you can write a basic Python `for` loop and you remember the line equation $y = mx + b$ from algebra, you have everything you need to start. Every new idea is introduced from scratch, in order, and each phase only relies on what earlier phases already taught.
 
-**The golden rule:** do the phases in order. Each phase ends with a *Bridge to the Next Phase* slide, and each lab ends with a *Where This Leads Next* note, so you always know how today's idea feeds into tomorrow's.
+Work through the phases in order. Each phase ends with a *Bridge to the Next Phase* slide, and each lab ends with a *Where This Leads Next* note.
 
 **What each phase gives you:**
 
@@ -201,10 +203,10 @@ This course is **self-contained**. If you can write a basic Python `for` loop an
 
 **How to study a single phase:**
 
-1. Read (or attend) the lecture first — it builds the mental model.
-2. Open the labs in order and run every cell. Change numbers and break things on purpose; intuition comes from experimenting.
+1. Read (or attend) the lecture first.
+2. Open the labs in order and run every cell. Change numbers and break things on purpose.
 3. Each lab opens with **What You Need to Know First** (a quick recap of prerequisites, all taught earlier) and closes with **Key Takeaway** + **Where This Leads Next**.
-4. The **Further Reading (Optional)** section at the end of every lecture and lab lists the original research papers. **These are strictly optional enrichment — you never need to read them to continue.**
+4. The **Further Reading (Optional)** section at the end of every lecture and lab lists the original research papers. You do not need to read them to continue.
 
 **If you get stuck:** re-read the "What You Need to Know First" box for that section; it names the exact earlier section where the concept was introduced.
 
@@ -524,13 +526,13 @@ sanity check that skips the heavy training labs (which are slow on CPU but fast 
 
 ---
 
-## Interactive playground (gamified)
+## Interactive app
 
-`course/interactive/` is a browser app that contains **the entire course** — all **9
-lectures**, all **39 lab sections**, and **23 playable, gamified mini-apps** — in one place.
-It is designed especially for students who learn better by poking at something than by
-reading. No JupyterLab, no GPU, no install of the Python stack: it runs entirely
-client-side and every concept builds intuition *before* the student opens the matching lab.
+**Try it online:** [https://rubenchevez.com/llms-from-scratch/](https://rubenchevez.com/llms-from-scratch/)
+
+`course/interactive/` is a browser app with all **9 lectures**, **39 lab sections**, and
+**24 interactive modules**. No JupyterLab, no GPU, and no Python install required — it runs
+entirely in the browser.
 
 The lecture and lab markdown is read straight from `course/lectures/` and `course/labs/`
 (bundled at build time via Vite's `import.meta.glob`), so the website is always in sync with
@@ -540,7 +542,7 @@ the source material — there is no duplicated content to maintain:
   collapsible speaker notes) — one deck per phase.
 - **Labs** render as fully formatted reading pages with LaTeX math (KaTeX), GitHub tables,
   and syntax-styled Python code cells — the exact code students run in JupyterLab.
-- **Playgrounds** are the interactive "expand" layer that makes each concept tangible.
+- **Playgrounds** are small interactive demos for each concept.
 
 Every phase page lays out the suggested flow: **watch the lecture → play the concepts → do
 the labs.**
@@ -566,29 +568,29 @@ npm run test:e2e:ui # Playwright interactive UI mode
 
 ### Deploy
 
-Production URL: **https://rubenchevez.com/llms-from-scratch/**
+**Live app:** [https://rubenchevez.com/llms-from-scratch/](https://rubenchevez.com/llms-from-scratch/)
 
-The build uses base path `/llms-from-scratch/` so assets resolve correctly under the parent site. From the **repo root**:
+The build uses base path `/` so assets load from the hosting root. From the **repo root**:
 
 ```bash
 npm install          # once — installs firebase-tools
 npm run build        # production build → course/interactive/dist/
-npm run deploy       # upload dist/ to Firebase Hosting (if using Firebase)
+npm run deploy       # upload dist/ to Firebase Hosting
 ```
 
-Copy `course/interactive/dist/` into your parent site's hosting at `/llms-from-scratch/` on [rubenchevez.com](https://rubenchevez.com/). The app uses hash routing (`#/…`), so no SPA rewrite rules are required.
+The app uses hash routing (`#/…`), so no SPA rewrite rules are required.
 
-For local preview of the production base path:
+For local preview:
 
 ```bash
 cd course/interactive
 npm run build && npm run preview
-# open http://localhost:4173/llms-from-scratch/
+# open http://localhost:4173/
 ```
 
 ### Testing the interactive app
 
-**Vitest** (unit + component) and **Playwright** (end-to-end browser interactions) cover the gamified app:
+**Vitest** (unit + component) and **Playwright** (end-to-end browser interactions) cover the interactive app:
 
 ```bash
 cd course/interactive
@@ -619,11 +621,11 @@ static host or opened behind a simple file server.
 
 ### Gamification
 
-- **XP + levels** — playgrounds award XP the first time you reach their "aha" interaction; reading a lecture (+20) or opening a lab (+10) also grants XP. Levels scale up a curve.
+- **XP + levels** — playgrounds award XP on first completion; reading a lecture (+20) or opening a lab (+10) also grants XP.
 - **Achievements & streaks** — unlock trophies (first module, finish a phase, 3-day streak, open a 3D scene, reach level 5, complete everything) with confetti + chime.
 - **Journey map** — the home screen is a phase-by-phase map showing each phase's lecture, lab count, playground count, and progress ring.
 - **Persistence** — all progress is saved to `localStorage`; nothing leaves the device.
-- **Animated transitions** between phases, sections, and modules for a smooth, game-like flow.
+- **Animated transitions** between phases, sections, and modules.
 
 ### The 24 playgrounds (mapped to the course)
 
@@ -639,8 +641,8 @@ static host or opened behind a simple file server.
 | 7 — Audio | Waveform → Tokens · Barge-In Booth |
 | 8 — Titans | Surprise-o-Meter · Neural Memory Vault · O(1) vs Linear |
 
-Each module mirrors a specific lab section (shown in-app) and ends with a plain-language
-"Key insight" tying the interaction back to the concept.
+Each module mirrors a specific lab section (shown in-app) and ends with a short summary of
+the concept.
 
 ### Architecture
 
@@ -747,9 +749,9 @@ Quick definitions for terms used throughout the course. Each is explained in ful
 
 ---
 
-## Master bibliography (all optional)
+## Bibliography (optional)
 
-Every paper referenced in the course, gathered here for convenience. **None of these are required reading** — the course is fully self-contained. They are listed for students who want to go deeper into a topic.
+Papers referenced in the course. None are required reading.
 
 **Foundations (Phase 0)**
 

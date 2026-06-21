@@ -38,21 +38,21 @@ export default function ModulePage() {
 
   return (
     <PageTransition>
-      <div className="mb-3 flex items-center gap-2 text-sm text-white/50">
+      <div className="mb-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-white/50">
         <Link to="/" className="hover:text-white">
           Journey
         </Link>
         <span>/</span>
-        <Link to={`/phase/${phase.slug}`} className="hover:text-white">
+        <Link to={`/phase/${phase.slug}`} className="max-w-[10rem] truncate hover:text-white sm:max-w-none">
           {phase.title}
         </Link>
         <span>/</span>
         <span className="text-white/80">{mod.title}</span>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-3xl font-extrabold text-white">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="flex items-center gap-2 text-2xl font-extrabold text-white sm:text-3xl">
             {mod.threeD && <span title="3D scene">🪐</span>}
             {mod.title}
           </h1>
@@ -93,23 +93,25 @@ export default function ModulePage() {
         </Suspense>
       </motion.div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <GameButton variant="ghost" onClick={() => navigate(`/phase/${phase.slug}`)}>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <GameButton variant="ghost" className="w-full sm:w-auto" onClick={() => navigate(`/phase/${phase.slug}`)}>
           ← Back to {phase.title}
         </GameButton>
 
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           {!done && (
-            <GameButton variant="success" onClick={handleDiscover}>
+            <GameButton variant="success" className="w-full sm:w-auto" onClick={handleDiscover}>
               Mark complete · +{mod.xp} XP
             </GameButton>
           )}
           {nextMod ? (
-            <GameButton onClick={() => navigate(`/phase/${phase.slug}/play/${nextMod.id}`)}>
+            <GameButton className="w-full sm:w-auto" onClick={() => navigate(`/phase/${phase.slug}/play/${nextMod.id}`)}>
               Next: {nextMod.title} →
             </GameButton>
           ) : (
-            <GameButton onClick={() => navigate(`/phase/${phase.slug}`)}>Finish phase →</GameButton>
+            <GameButton className="w-full sm:w-auto" onClick={() => navigate(`/phase/${phase.slug}`)}>
+              Finish phase →
+            </GameButton>
           )}
         </div>
       </div>

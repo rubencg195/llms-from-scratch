@@ -12,18 +12,18 @@ export default function TopBar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-purple-500/20 bg-black shadow-[0_12px_48px_rgba(88,28,135,0.22)]">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
-        <Link to="/" className="group flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-500 text-lg shadow-lg shadow-indigo-500/40">
+      <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
+        <Link to="/" className="group flex min-w-0 items-center gap-2 sm:gap-2.5">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-indigo-500 text-base shadow-lg shadow-indigo-500/40 sm:h-9 sm:w-9 sm:text-lg">
             ⚡
           </span>
-          <div className="leading-tight">
+          <div className="min-w-0 leading-tight">
             <div className="text-sm font-bold tracking-wide text-white">LLMs From Scratch</div>
-            <div className="text-[11px] text-white/45">by Ruben Chevez</div>
+            <div className="hidden text-[11px] text-white/45 sm:block">by Ruben Chevez</div>
           </div>
         </Link>
 
-        <nav className="ml-2 hidden items-center gap-1 md:flex">
+        <nav className="ml-1 hidden items-center gap-1 md:flex">
           <NavLink to="/" active={loc.pathname === "/"}>
             Journey
           </NavLink>
@@ -32,7 +32,7 @@ export default function TopBar() {
           </NavLink>
         </nav>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           <div className="hidden items-center gap-1.5 rounded-full bg-orange-500/15 px-3 py-1.5 text-sm font-semibold text-orange-300 sm:flex">
             <span>🔥</span>
             <span>{streak}d</span>
@@ -47,11 +47,11 @@ export default function TopBar() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-full surface-muted px-3 py-1.5">
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-orange-500 text-[11px] font-bold text-black">
+          <div className="flex items-center gap-1.5 rounded-full surface-muted px-2 py-1.5 sm:gap-2 sm:px-3">
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-orange-500 text-[11px] font-bold text-black">
               {level}
             </span>
-            <div className="w-28">
+            <div className="w-16 sm:w-28">
               <div className="h-2 overflow-hidden rounded-full bg-white/10">
                 <motion.div
                   className="h-full rounded-full bg-orange-500"
@@ -66,7 +66,8 @@ export default function TopBar() {
           <button
             onClick={toggleSound}
             title={soundOn ? "Sound on" : "Sound off"}
-            className="surface-muted grid h-9 w-9 place-items-center rounded-full text-base hover:brightness-110"
+            aria-label={soundOn ? "Sound on" : "Sound off"}
+            className="surface-muted grid h-9 w-9 shrink-0 place-items-center rounded-full text-base hover:brightness-110"
           >
             {soundOn ? "🔊" : "🔇"}
           </button>

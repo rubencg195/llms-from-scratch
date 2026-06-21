@@ -3,9 +3,9 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
 
-// Deployed at https://rubenchevez.com/llms-from-scratch/ — override with VITE_BASE=./ for local preview/tests.
+// Served at site root (Firebase Hosting / DNS). Use VITE_BASE=./ only if needed for relative-path previews.
 export default defineConfig({
-  base: process.env.VITE_BASE ?? "/llms-from-scratch/",
+  base: process.env.VITE_BASE ?? "/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

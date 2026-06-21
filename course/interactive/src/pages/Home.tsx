@@ -13,12 +13,12 @@ export default function Home() {
   return (
     <PageTransition>
       {/* Hero */}
-      <section className="surface relative z-10 mb-10 overflow-hidden rounded-3xl p-8 md:p-12">
+      <section className="surface relative z-10 mb-10 overflow-hidden rounded-3xl p-5 sm:p-8 md:p-12">
         <div className="relative">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl text-4xl font-extrabold leading-tight text-white md:text-5xl"
+            className="max-w-2xl text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl"
           >
             Build an LLM from scratch —{" "}
             <span className="text-glow text-fuchsia-300">
@@ -31,14 +31,14 @@ export default function Home() {
             slides, poke at the concepts, then run the real labs in JupyterLab.
           </p>
 
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
               to={`/phase/${PHASES[0].slug}`}
-              className="relative z-10 rounded-xl bg-indigo-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/30 transition hover:brightness-110 active:scale-95"
+              className="relative z-10 w-full rounded-xl bg-indigo-500 px-5 py-3 text-center text-sm font-bold text-white shadow-lg shadow-indigo-500/30 transition hover:brightness-110 active:scale-95 sm:w-auto"
             >
               {journey.itemsDone === 0 ? "Start the journey →" : "Continue →"}
             </Link>
-            <div className="surface-muted flex items-center gap-4 rounded-xl px-5 py-3 text-sm">
+            <div className="surface-muted flex w-full flex-wrap items-center justify-around gap-3 rounded-xl px-4 py-3 text-sm sm:w-auto sm:justify-center sm:gap-4 sm:px-5">
               <Meter label="Level" value={level} />
               <div className="h-8 w-px bg-white/10" />
               <Meter label="XP" value={`${xp}/${TOTAL_MAX_XP}`} />
@@ -68,7 +68,7 @@ function Meter({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="text-center">
       <div className="text-[11px] uppercase tracking-wide text-white/40">{label}</div>
-      <div className="font-mono text-base font-bold text-white">{value}</div>
+      <div className="font-mono text-sm font-bold text-white sm:text-base">{value}</div>
     </div>
   );
 }

@@ -41,17 +41,19 @@ export default function LecturePage() {
 
   return (
     <PageTransition>
-      <div className="mb-3 flex items-center gap-2 text-sm text-white/50">
+      <div className="mb-3 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-white/50">
         <Link to="/" className="hover:text-white">Journey</Link>
         <span>/</span>
-        <Link to={`/phase/${phase.slug}`} className="hover:text-white">{phase.title}</Link>
+        <Link to={`/phase/${phase.slug}`} className="max-w-[10rem] truncate hover:text-white sm:max-w-none">
+          {phase.title}
+        </Link>
         <span>/</span>
         <span className="text-white/80">Lecture</span>
       </div>
 
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-extrabold text-white">📽️ {lecture.title}</h1>
-        <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm text-white/60">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <h1 className="text-xl font-extrabold text-white sm:text-2xl">📽️ {lecture.title}</h1>
+        <span className="shrink-0 self-start rounded-full bg-emerald-500/20 px-3 py-1 text-sm text-white/60">
           Slide {i + 1} / {total}
           {isRead(`lec:${phase.id}`) && " · ✓ Read"}
         </span>
@@ -64,7 +66,7 @@ export default function LecturePage() {
         />
       </div>
 
-      <div className="surface relative z-10 min-h-[360px] rounded-3xl p-6 md:p-8">
+      <div className="surface relative z-10 min-h-[280px] rounded-3xl p-4 sm:min-h-[360px] sm:p-6 md:p-8">
         <AnimatePresence mode="wait">
           <motion.div
             key={i}
@@ -96,8 +98,13 @@ export default function LecturePage() {
         </AnimatePresence>
       </div>
 
-      <div className="mt-5 flex items-center justify-between">
-        <GameButton variant="ghost" onClick={() => setI((x) => Math.max(0, x - 1))} disabled={i === 0}>
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <GameButton
+          variant="ghost"
+          className="w-full sm:w-auto"
+          onClick={() => setI((x) => Math.max(0, x - 1))}
+          disabled={i === 0}
+        >
           ← Previous
         </GameButton>
 
@@ -116,9 +123,11 @@ export default function LecturePage() {
         </div>
 
         {i < total - 1 ? (
-          <GameButton onClick={() => setI((x) => Math.min(total - 1, x + 1))}>Next →</GameButton>
+          <GameButton className="w-full sm:w-auto" onClick={() => setI((x) => Math.min(total - 1, x + 1))}>
+            Next →
+          </GameButton>
         ) : (
-          <GameButton variant="success" onClick={() => window.scrollTo({ top: 0 })}>
+          <GameButton variant="success" className="w-full sm:w-auto" onClick={() => window.scrollTo({ top: 0 })}>
             <Link to={`/phase/${phase.slug}`}>Back to phase ✓</Link>
           </GameButton>
         )}

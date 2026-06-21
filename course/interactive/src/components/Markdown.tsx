@@ -11,12 +11,12 @@ import "katex/dist/katex.min.css";
  */
 export default function Markdown({ children }: { children: string }) {
   return (
-    <div className="prose-invert max-w-none text-[15px] leading-relaxed text-white/85">
+    <div className="prose-invert max-w-none overflow-x-hidden text-[15px] leading-relaxed text-white/85">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
-          h1: (p) => <h1 className="mb-3 mt-2 text-2xl font-extrabold text-white" {...p} />,
+          h1: (p) => <h1 className="mb-3 mt-2 text-xl font-extrabold text-white sm:text-2xl" {...p} />,
           h2: (p) => <h2 className="mb-2 mt-6 text-xl font-bold text-white" {...p} />,
           h3: (p) => <h3 className="mb-2 mt-5 text-lg font-semibold text-white/95" {...p} />,
           p: (p) => <p className="my-3 text-white/80" {...p} />,

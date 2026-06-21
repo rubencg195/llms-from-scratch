@@ -28,15 +28,15 @@ export default function Phase() {
         <span className="text-white/80">Phase {phase.id}</span>
       </div>
 
-      <div className="mb-8 flex items-center gap-4">
+      <div className="mb-8 flex items-start gap-3 sm:gap-4">
         <div
-          className="grid h-16 w-16 place-items-center rounded-2xl text-4xl"
+          className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-3xl sm:h-16 sm:w-16 sm:text-4xl"
           style={{ background: `${phase.color.from}26`, border: `1px solid ${phase.color.ring}55` }}
         >
           {phase.icon}
         </div>
-        <div>
-          <h1 className="text-3xl font-extrabold text-white">{phase.title}</h1>
+        <div className="min-w-0">
+          <h1 className="text-2xl font-extrabold text-white sm:text-3xl">{phase.title}</h1>
           <p className="text-white/55">{phase.tagline}</p>
         </div>
       </div>
@@ -76,16 +76,16 @@ export default function Phase() {
         <Section title="Lecture" accent={phase.color.ring}>
           <Link
             to={`/phase/${phase.slug}/lecture`}
-            className="surface group relative z-10 flex items-center justify-between rounded-2xl p-5 transition hover:brightness-105"
+            className="surface group relative z-10 flex flex-col gap-4 rounded-2xl p-4 transition hover:brightness-105 sm:flex-row sm:items-center sm:justify-between sm:p-5"
           >
-            <div className="flex items-center gap-4">
-              <span className="surface-muted grid h-12 w-12 place-items-center rounded-xl text-2xl">📽️</span>
-              <div>
+            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+              <span className="surface-muted grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl">📽️</span>
+              <div className="min-w-0">
                 <div className="font-semibold text-white">{lecture.title}</div>
-                <div className="text-sm text-white/50">{lecture.slides.length} slides · concepts, math & intuition</div>
+                <div className="text-sm text-white/50">{lecture.slides.length} slides</div>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end">
               {isRead(`lec:${phase.id}`) && (
                 <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-300">
                   ✓ Read
@@ -176,7 +176,7 @@ export default function Phase() {
         </div>
       </Section>
 
-      <div className="mt-10 flex items-center justify-between">
+      <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {prev ? (
           <Link to={`/phase/${prev.slug}`} className="surface-muted relative z-10 rounded-xl px-4 py-2.5 text-sm text-white/70 hover:brightness-110">
             ← Phase {prev.id}: {prev.title}
@@ -185,11 +185,11 @@ export default function Phase() {
           <span />
         )}
         {next ? (
-          <Link to={`/phase/${next.slug}`} className="surface-muted relative z-10 rounded-xl px-4 py-2.5 text-sm text-white/70 hover:brightness-110">
+          <Link to={`/phase/${next.slug}`} className="surface-muted relative z-10 rounded-xl px-4 py-2.5 text-sm text-white/70 hover:brightness-110 sm:ml-auto">
             Phase {next.id}: {next.title} →
           </Link>
         ) : (
-          <Link to="/trophies" className="relative z-10 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-black">
+          <Link to="/trophies" className="relative z-10 rounded-xl bg-orange-500 px-4 py-2.5 text-center text-sm font-bold text-black sm:ml-auto">
             See your trophies 🏆
           </Link>
         )}

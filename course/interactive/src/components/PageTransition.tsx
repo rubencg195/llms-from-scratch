@@ -8,7 +8,7 @@ export default function PageTransition({ children }: { children: ReactNode }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      className="mx-auto max-w-7xl px-4 py-8"
+      className="mx-auto max-w-7xl px-3 py-6 pb-24 sm:px-4 sm:py-8 md:pb-8"
     >
       {children}
     </motion.main>

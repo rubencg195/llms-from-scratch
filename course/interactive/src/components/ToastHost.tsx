@@ -21,7 +21,7 @@ export default function ToastHost() {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: -16, opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className="glass pointer-events-auto flex items-center gap-3 rounded-2xl px-5 py-3 shadow-2xl"
+            className="glass pointer-events-auto flex max-w-[min(100%,24rem)] items-center gap-3 rounded-2xl px-5 py-3 shadow-2xl"
           >
             <span className="text-2xl">{toast.icon}</span>
             <div>

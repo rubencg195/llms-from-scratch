@@ -17,7 +17,7 @@ export default function Trophies() {
 
   return (
     <PageTransition>
-      <h1 className="text-3xl font-extrabold text-white">Your Trophy Room</h1>
+      <h1 className="text-2xl font-extrabold text-white sm:text-3xl">Your Trophy Room</h1>
       <p className="mt-1 text-white/55">
         Progress is saved automatically in <code className="text-indigo-300">localStorage</code> on this device.
       </p>
@@ -86,7 +86,7 @@ function BigStat({ icon, label, value }: { icon: string; label: string; value: R
   return (
     <div className="glass rounded-2xl p-4 text-center">
       <div className="text-3xl">{icon}</div>
-      <div className="mt-1 font-mono text-xl font-bold text-white">{value}</div>
+      <div className="mt-1 font-mono text-base font-bold break-words text-white sm:text-xl">{value}</div>
       <div className="text-[11px] uppercase tracking-wide text-white/40">{label}</div>
     </div>
   );

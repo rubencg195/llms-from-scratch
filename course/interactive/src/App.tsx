@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import TopBar from "@/components/layout/TopBar";
+import MobileNav from "@/components/layout/MobileNav";
 import ToastHost from "@/components/ToastHost";
 import Home from "@/pages/Home";
 import Phase from "@/pages/Phase";
@@ -19,6 +20,7 @@ export default function App() {
       </div>
       <div className="app-shell min-h-full">
         <TopBar />
+        <MobileNav />
         <ToastHost />
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>

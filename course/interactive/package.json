@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Gamified, browser-based interactive companion for the LLMs From Scratch course.",
+  "description": "Browser-based interactive companion for the LLMs From Scratch course.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
