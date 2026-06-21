@@ -1,0 +1,12 @@
+{
+  "name": "llms-from-scratch",
+  "private": true,
+  "description": "LLMs From Scratch — course materials and interactive app.",
+  "scripts": {
+    "build": "npm run build --prefix course/interactive",
+    "deploy": "firebase deploy --only hosting --project llms-from-scratch"
+  },
+  "devDependencies": {
+    "firebase-tools": "^14.0.0"
+  }
+}

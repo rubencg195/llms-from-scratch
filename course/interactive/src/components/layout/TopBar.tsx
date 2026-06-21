@@ -19,7 +19,7 @@ export default function TopBar() {
           </span>
           <div className="leading-tight">
             <div className="text-sm font-bold tracking-wide text-white">LLMs From Scratch</div>
-            <div className="text-[11px] text-white/45">Interactive Playground</div>
+            <div className="text-[11px] text-white/45">by Ruben Chevez</div>
           </div>
         </Link>
 

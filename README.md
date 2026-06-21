@@ -564,6 +564,28 @@ npm run test:e2e:ui # Playwright interactive UI mode
 # or: npm run build && npm run preview   (static build in dist/)
 ```
 
+### Deploy
+
+Production URL: **https://rubenchevez.com/llms-from-scratch/**
+
+The build uses base path `/llms-from-scratch/` so assets resolve correctly under the parent site. From the **repo root**:
+
+```bash
+npm install          # once — installs firebase-tools
+npm run build        # production build → course/interactive/dist/
+npm run deploy       # upload dist/ to Firebase Hosting (if using Firebase)
+```
+
+Copy `course/interactive/dist/` into your parent site's hosting at `/llms-from-scratch/` on [rubenchevez.com](https://rubenchevez.com/). The app uses hash routing (`#/…`), so no SPA rewrite rules are required.
+
+For local preview of the production base path:
+
+```bash
+cd course/interactive
+npm run build && npm run preview
+# open http://localhost:4173/llms-from-scratch/
+```
+
 ### Testing the interactive app
 
 **Vitest** (unit + component) and **Playwright** (end-to-end browser interactions) cover the gamified app:

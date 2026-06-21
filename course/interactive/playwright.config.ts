@@ -20,7 +20,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${PORT}`,
+    command: `VITE_BASE=./ npm run build && VITE_BASE=./ npm run preview -- --host 127.0.0.1 --port ${PORT}`,
     url: BASE,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

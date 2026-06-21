@@ -22,6 +22,12 @@ exports/
 .DS_Store
 .idea/
 .vscode/settings.json
+node_modules/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
 
 # Data & checkpoints (students download separately)
 data/

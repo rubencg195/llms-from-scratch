@@ -1,15 +1,141 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LLMs From Scratch — Interactive Playground</title>
+    <meta charset="utf-8" />
+    <link rel="icon" href="https://rubenchevez.com/code-icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#4285f4" />
     <meta
       name="description"
-      content="A gamified, hands-on companion to the LLMs From Scratch course. Play with tensors, attention, quantization, and Titans memory right in your browser."
+      content="LLMs From Scratch — a gamified, browser-based course by Ruben Chevez. Nine lectures, 39 labs, and 24 interactive playgrounds covering transformers, quantization, MoE, and Titans memory."
     />
+    <meta
+      name="keywords"
+      content="Ruben Chevez, LLMs From Scratch, Large Language Models, Transformer, Attention, PyTorch, Machine Learning, Deep Learning, MLOps, Interactive Course, Gamified Learning, Quantization, Mixture of Experts, Titans Memory, Instruction Tuning, Multimodal AI, Director Machine Learning Operations, MLOps Engineer, Python Developer, React Developer, AWS, Canada Developer"
+    />
+    <meta name="author" content="Ruben Chevez" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="geo.region" content="CA-NL" />
+    <meta name="geo.placename" content="St. John's, Newfoundland, Canada" />
+    <meta name="geo.position" content="47.5615;-52.7126" />
+    <meta name="ICBM" content="47.5615, -52.7126" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://rubenchevez.com/llms-from-scratch/" />
+    <meta
+      property="og:title"
+      content="LLMs From Scratch — Interactive Course | Ruben Chevez"
+    />
+    <meta
+      property="og:description"
+      content="Build an LLM from scratch by playing with it. Full course in your browser: lectures, labs, and hands-on playgrounds for tensors, attention, QAT, MoE, and more."
+    />
+    <meta property="og:image" content="https://rubenchevez.com/images/profile/profile.jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="LLMs From Scratch — Interactive Course by Ruben Chevez" />
+    <meta property="og:locale" content="en_CA" />
+    <meta property="og:site_name" content="Ruben Chevez Portfolio" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://rubenchevez.com/llms-from-scratch/" />
+    <meta
+      property="twitter:title"
+      content="LLMs From Scratch — Interactive Course | Ruben Chevez"
+    />
+    <meta
+      property="twitter:description"
+      content="Build an LLM from scratch by playing with it. Full course in your browser: lectures, labs, and hands-on playgrounds."
+    />
+    <meta property="twitter:image" content="https://rubenchevez.com/images/profile/profile.jpeg" />
+    <meta property="twitter:image:alt" content="LLMs From Scratch — Interactive Course by Ruben Chevez" />
+    <meta property="twitter:site" content="@rubencg195" />
+    <meta property="twitter:creator" content="@rubencg195" />
+
+    <!-- LinkedIn -->
+    <meta property="linkedin:owner" content="rubenchevez" />
+
+    <link rel="apple-touch-icon" href="https://rubenchevez.com/code-icon.svg" />
+    <link rel="canonical" href="https://rubenchevez.com/llms-from-scratch/" />
+
+    <title>LLMs From Scratch — Interactive Course | Ruben Chevez</title>
+
+    <!-- JSON-LD: Course -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "LLMs From Scratch",
+        "description": "A gamified, hands-on course to build large language models from first principles — tensors, attention, quantization, mixture of experts, and Titans memory.",
+        "url": "https://rubenchevez.com/llms-from-scratch/",
+        "image": "https://rubenchevez.com/images/profile/profile.jpeg",
+        "inLanguage": "en",
+        "isAccessibleForFree": true,
+        "provider": {
+          "@type": "Person",
+          "name": "Ruben Chevez",
+          "url": "https://rubenchevez.com/",
+          "sameAs": [
+            "https://linkedin.com/in/rubenchevez",
+            "https://github.com/rubencg195",
+            "https://github.com/rubencg195/llms-from-scratch"
+          ],
+          "jobTitle": "Director, Onboarding Threat Intelligence",
+          "worksFor": {
+            "@type": "Organization",
+            "name": "Nasdaq Verafin",
+            "url": "https://verafin.com"
+          }
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Ruben Chevez",
+          "url": "https://rubenchevez.com/"
+        },
+        "teaches": [
+          "Large Language Models",
+          "Transformer Architecture",
+          "PyTorch",
+          "Attention Mechanisms",
+          "Quantization-Aware Training",
+          "Mixture of Experts",
+          "Instruction Tuning",
+          "Multimodal AI"
+        ],
+        "hasCourseInstance": {
+          "@type": "CourseInstance",
+          "courseMode": "online",
+          "courseWorkload": "Self-paced"
+        }
+      }
+    </script>
+
+    <!-- JSON-LD: WebSite (aligned with parent portfolio) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "LLMs From Scratch — Ruben Chevez",
+        "description": "Interactive, gamified companion to the LLMs From Scratch course by Ruben Chevez.",
+        "url": "https://rubenchevez.com/llms-from-scratch/",
+        "author": {
+          "@type": "Person",
+          "name": "Ruben Chevez",
+          "url": "https://rubenchevez.com/"
+        },
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Ruben Chevez Portfolio",
+          "url": "https://rubenchevez.com/"
+        }
+      }
+    </script>
   </head>
   <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
