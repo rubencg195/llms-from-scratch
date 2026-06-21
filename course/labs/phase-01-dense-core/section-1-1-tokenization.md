@@ -77,6 +77,47 @@ print("tokens:", [enc.decode([t]) for t in tokens])
 print(f"4 words → {len(tokens)} tokens (subword compression)")
 ```
 
+## Byte-level BPE and GPT-2 pretokenization (Karpathy's tokenizer video)
+
+Production tokenizers (GPT-2, GPT-4, LLaMA) do **not** split on whitespace alone. They use a two-step pipeline:
+
+1. **Regex pretokenization** — split text into chunks (words, numbers, punctuation) using a fixed pattern.
+2. **Byte-level BPE** — run BPE on UTF-8 **bytes**, not Unicode characters. Every possible byte (256 values) is in the vocabulary, so **no unknown tokens ever**.
+
+GPT-2's pretokenization pattern (simplified):
+
+```python
+import re
+
+GPT2_PATTERN = r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
+# tiktoken implements this in Rust; here is a readable stand-in:
+
+def gpt2_like_split(text):
+    # Split words, numbers, and punctuation — keeps leading spaces attached
+    parts = re.findall(r"'?\w+|'?\d+|[^\w\s]+|\s+", text)
+    return [p for p in parts if p]
+
+sample = "Hello, world! 2+2=4  don't"
+print(gpt2_like_split(sample))
+# ['Hello', ',', ' world', '!', ' 2', '+', '2', '=', '4', " don't"]
+```
+
+**Why bytes?** A rare emoji or typo is always encodable as 1–4 UTF-8 bytes. Word-level vocabularies need an `<|unk|>` token; byte-level BPE does not.
+
+**Famous quirks** (try these in tiktoken):
+
+```python
+for s in ["hello", " hello", "Hello", " 2+2", "2+2=4"]:
+    toks = enc.encode(s)
+    print(f"{s!r:15} → {toks}  pieces={[enc.decode([t]) for t in toks]}")
+```
+
+- Leading space matters: `" hello"` vs `"hello"` are different token sequences.
+- Arithmetic splits oddly — models learn math partly from tokenization artifacts.
+- Case matters: `"Hello"` ≠ `"hello"`.
+
+Our TinyStories lab uses a simplified merge loop; Phase 1's final checkpoint uses proper byte-level BPE via a production-style vocab.
+
 ## Subword Tokenization: The BPE Merge Algorithm
 
 Byte-Pair Encoding (BPE) starts with individual characters and **iteratively merges** the most frequent adjacent pair into a new token. This builds a vocabulary bottom-up:
@@ -250,7 +291,8 @@ You now have a stream of integer token IDs. But an ID like `4217` is just a labe
 - **Tokenization** converts raw text into integer sequences that models can process — it's the first and last step in every LLM pipeline.
 - **BPE** (Byte-Pair Encoding) achieves the best tradeoff: moderate vocab size, reasonable sequence lengths, and graceful handling of rare/unseen words via subword decomposition.
 - The **merge algorithm** is elegant: iteratively combine the most frequent adjacent pair until you reach your target vocabulary size.
-- **Vocabulary coverage** analysis reveals how much information you lose to UNK tokens — BPE minimizes this by construction.
+- **Vocabulary coverage** analysis reveals how much information you lose to UNK tokens — byte-level BPE avoids UNK entirely.
+- **GPT-2 pretokenization** splits on regex before BPE; leading spaces and punctuation affect token IDs.
 - In Phase 1, we use a vocab of 8,000 tokens — small enough for fast training on an RTX 3080, large enough to capture TinyStories grammar.
 
 ## Checkpoint

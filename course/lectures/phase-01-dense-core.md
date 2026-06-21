@@ -114,7 +114,25 @@ Step 4:  merge (es, t) → "est"
 
 Result: `"lowest"` → tokens `["low", "est"]` → IDs `[142, 897]`
 
-<!-- notes: BPE is elegant because it's data-driven. Common words like "the" become single tokens. Rare words get split into subwords. This means the model never encounters an unknown word — it can always fall back to character-level tokens. Our TinyStories vocabulary is ~8k tokens, which is tiny compared to GPT-4's ~100k, but sufficient for children's language. -->
+<!-- notes: BPE is elegant because it's data-driven. Common words like "the" become single tokens. Rare words get split into subwords. Byte-level BPE (GPT-2/4) encodes UTF-8 bytes so there is never an unknown token. Our TinyStories vocabulary is ~8k tokens, which is tiny compared to GPT-4's ~100k, but sufficient for children's language. -->
+
+---
+
+## Byte-level BPE & pretokenization (GPT-2 style)
+
+Real tokenizers use two steps:
+
+1. **Regex split** — `"Hello, 2+2=4"` → `['Hello', ',', ' 2', '+', '2', '=', '4']`
+2. **Byte-level BPE** — merge frequent byte pairs; all 256 bytes are always in vocab
+
+**Quirks students should know:**
+- Leading space: `" hello"` ≠ `"hello"` (different tokens)
+- Case: `"The"` ≠ `"the"`
+- Numbers split oddly — affects how models learn arithmetic
+
+Lab 1.1 explores these with `tiktoken` before building a simplified merge table.
+
+<!-- notes: Karpathy's dedicated tokenizer video walks through GPT-2's regex pattern and byte-level merges. This is practical knowledge for debugging generation — if your model can't spell, check whether the tokenizer splits letters individually. -->
 
 ---
 
@@ -201,6 +219,26 @@ Step by step (for one query token attending to 4 keys):
 **Multi-head:** Run $h$ parallel attention operations with different $W_Q, W_K, W_V$ projections, then concatenate. Each head can learn a different notion of "relevance."
 
 <!-- notes: The scaling by sqrt(d_k) prevents dot products from growing large in high dimensions, which would push softmax into regions with vanishing gradients. Multi-head attention is like having multiple "perspectives" — one head might track subject-verb agreement, another might track coreference, another might focus on recent context. With 8 heads and d_model=512, each head works in d_k=64 dimensions. -->
+
+---
+
+## Bigram LM — the simplest language model (Lab 1.18)
+
+Before the Transformer, build a **counting** language model:
+
+```
+Corpus:  "the cat sat on the mat"
+Counts:  the→cat (1), cat→sat (1), sat→on (1), on→the (1), the→mat (1)
+
+P(cat | the) = count / total_after_the
+Generate: sample next word from row → append → repeat
+```
+
+Same generation loop as Phase 1.5 — only the probability source changes from a neural net to a table.
+
+**Why teach this?** Students see that an LM is just $P(\text{next token} \mid \text{context})$ before wrestling with attention.
+
+<!-- notes: Karpathy's makemore Part 1. The bigram model trains in seconds and produces repetitive but grammatical text. When students later see cross-entropy loss in the Transformer, they recognize it as the same objective applied to a smarter probability function. -->
 
 ---
 
@@ -332,19 +370,40 @@ for batch in dataloader:
 
 ---
 
+## Training health checks (Lab 1.19)
+
+Before a multi-hour run, spend 5 minutes checking:
+
+| Check | Healthy | Red flag |
+|-------|---------|----------|
+| Weight init | `std ≈ 0.02` | `std > 0.1` |
+| Activation std | 0.5 – 2.0 per layer | > 10 or < 0.01 |
+| Gradient norm | 1e-4 – 1e-1 | > 10 or ≈ 0 |
+| Initial loss | ~8–10 (random) | NaN |
+| Perplexity | ↓ over time | flat or ↑ |
+
+**Perplexity** = $e^{\text{loss}}$ — "how many tokens is the model choosing between on average?"
+Random over 8k vocab ≈ 8000. Trained TinyStories ≈ 12–55.
+
+<!-- notes: Karpathy's makemore Part 3. Hook activations and gradients for the first 10 batches. This catches 90% of training failures before they waste GPU time. Students should treat this as a pre-flight checklist, not optional debugging. -->
+
+---
+
 ## Lab map
 
 | Lab | Topic | What you build |
 |-----|-------|----------------|
-| 1.1 | Tokenization | BPE tokenizer from scratch |
+| 1.1 | Tokenization | BPE tokenizer + byte-level quirks |
+| 1.18 | Bigram LM | Counting LM + sampling loop |
 | 1.2 | Embeddings | Embedding layer + positional encoding |
 | 1.3 | RoPE | Rotation matrices applied to Q, K |
 | 1.4 | Attention | Multi-head causal self-attention |
+| 1.19 | Training health | Init, activation & gradient diagnostics |
 | 1.5 | Training loop | Full training with mixed precision |
 
 Each lab builds on the previous one. By lab 1.5, you assemble all components into a complete Transformer.
 
-<!-- notes: Labs are designed to be done in order. Each lab imports code from the previous one. Encourage students to actually read their generated text at each checkpoint — watching the model go from random characters to coherent sentences is the most rewarding part of the course. -->
+<!-- notes: Labs 1.18 and 1.19 are Karpathy-inspired stepping stones — bigram LM before the neural net, health checks before the long training run. Labs are designed to be done in order. Each lab imports code from the previous one. Encourage students to actually read their generated text at each checkpoint — watching the model go from random characters to coherent sentences is the most rewarding part of the course. -->
 
 ---
 

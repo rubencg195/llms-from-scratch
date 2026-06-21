@@ -48,7 +48,7 @@ flowchart LR
 flowchart TB
     subgraph Phase0["Phase 0 — Math Primer"]
         P0L["Lecture: Tensors, Dot Product, Autograd"]
-        P0B["Labs 0.1–0.4"]
+        P0B["Labs 0.1–0.25–0.4"]
     end
 
     subgraph Phase1["Phase 1 — Dense Transformer"]
@@ -530,8 +530,8 @@ sanity check that skips the heavy training labs (which are slow on CPU but fast 
 
 **Try it online:** [https://rubenchevez.com/llms-from-scratch/](https://rubenchevez.com/llms-from-scratch/)
 
-`course/interactive/` is a browser app with all **9 lectures**, **39 lab sections**, and
-**24 interactive modules**. No JupyterLab, no GPU, and no Python install required — it runs
+`course/interactive/` is a browser app with all **9 lectures**, **43 lab sections**, and
+**27 interactive modules**. No JupyterLab, no GPU, and no Python install required — it runs
 entirely in the browser.
 
 The lecture and lab markdown is read straight from `course/lectures/` and `course/labs/`
@@ -600,13 +600,13 @@ npm run test:all      # both
 npm run test:e2e:ui   # Playwright interactive UI mode
 ```
 
-Playwright starts a production preview server automatically, clears `localStorage` before each test, and exercises real clicks, keyboard navigation, route transitions, XP/trophy persistence, and all 24 playground loads.
+Playwright starts a production preview server automatically, clears `localStorage` before each test, and exercises real clicks, keyboard navigation, route transitions, XP/trophy persistence, and all 27 playground loads.
 
 | Area | Vitest | Playwright E2E |
 |------|--------|----------------|
 | `src/store/progress.ts` | XP, streaks, achievements, journey stats, persist/rehydrate | XP after lecture/lab/playground, reset, trophy unlocks |
-| `src/content.ts` | All 9 lectures + 39 labs load from markdown | Lecture slides, lab reader, markdown render |
-| `src/data/curriculum.ts` | Phase/module structure, XP totals | All 9 phase pages, 24 playground smoke loads |
+| `src/content.ts` | All 9 lectures + 43 labs load from markdown | Lecture slides, lab reader, markdown render |
+| `src/data/curriculum.ts` | Phase/module structure, XP totals | All 9 phase pages, 27 playground smoke loads |
 | `src/modules/registry.tsx` | Every module has a component | Mark complete, next/finish phase navigation |
 | Routing & layout | `App.tsx`, Home, Phase | Navbar, breadcrumbs, invalid routes, phase cards |
 | Gamification UI | — | Trophies, journey counters, sound toggle, full phase-0 flow |
@@ -627,13 +627,13 @@ static host or opened behind a simple file server.
 - **Persistence** — all progress is saved to `localStorage`; nothing leaves the device.
 - **Animated transitions** between phases, sections, and modules.
 
-### The 24 playgrounds (mapped to the course)
+### The 27 playgrounds (mapped to the course)
 
 | Phase | Interactive modules |
 |-------|---------------------|
-| 0 — Bridging the Gap | Tensor Explorer · Dot-Product Radar · Gradient-Descent Arcade · Fit-the-Line |
-| 1 — Dense Core | Tokenizer Lab · **Embedding Galaxy (3D)** · RoPE Rotator · Attention Spotlight |
-| 2 — Instruction Tuning | Chat-Template Builder · Masked-Loss Painter · Tool-Call Simulator |
+| 0 — Bridging the Gap | Tensor Explorer · Dot-Product Radar · **Micrograd Chain** · Gradient-Descent Arcade · Fit-the-Line |
+| 1 — Dense Core | Tokenizer Lab · **Bigram Predictor** · **Embedding Galaxy (3D)** · RoPE Rotator · Attention Spotlight |
+| 2 — Instruction Tuning | Chat-Template Builder · Masked-Loss Painter · Tool-Call Simulator · **Preference Picker** |
 | 3 — QAT | Bit Crusher (quantization grid) · Straight-Through Estimator |
 | 4 — MoE | Token Router · Load-Balance Juggler |
 | 5 — TurboQuant | KV-Cache Meter · PolarQuant Spinner |

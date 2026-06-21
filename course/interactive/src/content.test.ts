@@ -17,8 +17,8 @@ describe("course content loader", () => {
     }
   });
 
-  it("loads all 39 lab sections", () => {
-    expect(LABS).toHaveLength(39);
+  it("loads all 43 lab sections", () => {
+    expect(LABS).toHaveLength(43);
     for (const lab of LABS) {
       expect(lab.slug).toMatch(/^section-\d+-\d+-/);
       expect(lab.section).toMatch(/^\d+-\d+$/);

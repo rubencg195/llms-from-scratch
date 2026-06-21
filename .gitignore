@@ -30,7 +30,7 @@ firebase-debug.log
 firebase-debug.*.log
 
 # Data & checkpoints (students download separately)
-data/
+/data/
 checkpoints/
 *.pt
 *.bin

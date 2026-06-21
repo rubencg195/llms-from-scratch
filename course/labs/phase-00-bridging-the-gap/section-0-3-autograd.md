@@ -18,6 +18,7 @@ kernelspec:
 
 - **Tensors and basic tensor math** (Section 0.1) — especially creating tensors and doing arithmetic on them.
 - **The dot product / matrix multiply** (Section 0.2) — the `x @ w` step that turns inputs into a prediction.
+- **Micrograd (Section 0.25, recommended)** — if you built the scalar autograd engine, the graph below will feel familiar.
 - **The high-school idea of a slope** — a *gradient* is just "how steeply the error changes if I nudge a number," i.e. a slope.
 
 Everything here builds directly on Sections 0.1 and 0.2, so no new outside knowledge is needed. Jargon like *gradient*, *backpropagation*, and *optimizer* is explained in plain words as it comes up. (A **gradient** is a slope that says which direction to push each weight to make the error smaller; **backpropagation** is just applying that slope rule backwards through the calculation.)

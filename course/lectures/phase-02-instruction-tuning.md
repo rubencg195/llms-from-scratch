@@ -305,6 +305,27 @@ An **epoch** is one full pass over the training dataset; *3 epochs* means the mo
 
 ---
 
+## Post-training: SFT is not the end (Lab 2.5)
+
+ChatGPT-style models go through **three stages**:
+
+```
+Base LM (Phase 1)  →  SFT (Labs 2.1–2.3)  →  Preference alignment (Lab 2.5)
+   predicts text       follows format           prefers helpful answers
+```
+
+**SFT** imitates expert demonstrations (GSM8K solutions, tool-call examples).
+
+**DPO (Direct Preference Optimization)** learns from pairs:
+- **Chosen:** concise, correct, safe answer
+- **Rejected:** verbose, wrong, or unhelpful answer
+
+One loss pushes the model toward `chosen` relative to a frozen SFT copy — no reward model or PPO required for learning purposes.
+
+<!-- notes: Karpathy's Deep Dive into LLMs explains this pipeline for beginners. SFT teaches skills; alignment teaches judgment. We skip full RLHF/PPO complexity and teach DPO as the accessible entry point. DeepSeek-R1 adds RL on verifiable math rewards — optional reading for students who want the frontier story. -->
+
+---
+
 ## VRAM note
 
 Same 80M backbone — fine-tuning uses **less** memory than pretraining:
@@ -331,10 +352,11 @@ VRAM comparison:
 | 2.2 | Masked loss | Role-aware loss masking |
 | 2.3 | GSM8K training | CoT fine-tuning with thought tags |
 | 2.4 | JSON tool output | Tool call + executor loop |
+| 2.5 | Preference alignment | DPO loss on chosen vs rejected pairs |
 
 **Deliverable:** `phase2_instruct.pt` — an instruction-following model that can reason about math and call tools.
 
-<!-- notes: Lab 2.4 is the most fun — students write a Python executor that parses the model's JSON output, runs a calculator, and feeds the result back. When it works end-to-end, it feels like magic: the model asks for a calculator, your code runs it, and the model incorporates the result into its answer. This is the foundation for agent-like behavior. -->
+<!-- notes: Lab 2.5 introduces DPO as the beginner-friendly alignment step after SFT. Lab 2.4 is the most fun — students write a Python executor that parses the model's JSON output, runs a calculator, and feeds the result back. When it works end-to-end, it feels like magic: the model asks for a calculator, your code runs it, and the model incorporates the result into its answer. -->
 
 ---
 

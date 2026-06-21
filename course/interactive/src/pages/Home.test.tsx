@@ -16,7 +16,7 @@ describe("Home journey map", () => {
   it("shows hero stats and all phase cards", () => {
     renderWithMemoryRouter(<Home />);
     expect(screen.getByText(/9 lectures/i)).toBeInTheDocument();
-    expect(screen.getByText(/39 labs/i)).toBeInTheDocument();
+    expect(screen.getByText(/43 labs/i)).toBeInTheDocument();
     expect(screen.getByText(new RegExp(`${TOTAL_MODULES} interactive playgrounds`, "i"))).toBeInTheDocument();
     expect(screen.getAllByText(/Phase \d/).length).toBeGreaterThanOrEqual(9);
   });

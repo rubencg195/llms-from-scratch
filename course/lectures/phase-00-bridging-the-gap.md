@@ -242,6 +242,34 @@ Every tensor with `requires_grad=True` gets a `.grad` attribute after `loss.back
 
 ---
 
+## Micrograd: autograd in 100 lines (Lab 0.25)
+
+Before trusting PyTorch, build it once:
+
+```python
+class Value:
+    def __init__(self, data, _children=(), _op=""):
+        self.data = data
+        self.grad = 0.0
+        self._backward = lambda: None
+        self._prev = set(_children)
+
+    def __mul__(self, other):
+        out = Value(self.data * other.data, (self, other), "*")
+        def _backward():
+            self.grad += other.data * out.grad
+            other.grad += self.data * out.grad
+        out._backward = _backward
+        return out
+    # ... +, ReLU, backward() walks the graph in reverse
+```
+
+**Karpathy's insight:** every op stores its local derivative. `backward()` multiplies them via the chain rule — exactly what `loss.backward()` does at scale.
+
+<!-- notes: Lab 0.25 implements the full Value class. Students who do this lab report that Section 0.3 suddenly makes sense. The "backprop ninja" exercise — manually tracing gradients through a small graph — is the single best debug skill for when training breaks later. -->
+
+---
+
 ## Why GPUs?
 
 | | CPU (Ryzen 5800X) | GPU (RTX 3080) |
@@ -268,14 +296,15 @@ A matrix multiply of two $[4096 \times 4096]$ matrices:
 |-----|-------|-----------|
 | 0.1 | Tensors | Create, reshape, move to GPU |
 | 0.2 | Dot product | Similarity via multiplication |
-| 0.3 | Autograd | `loss.backward()`, `.grad` |
+| 0.25 | **Micrograd** | Build autograd from scratch (chain rule) |
+| 0.3 | Autograd | `loss.backward()`, `.grad` in PyTorch |
 | 0.4 | First neural layer | $y = Wx + b$ in PyTorch |
 
 Dataset: **synthetic random arrays** (no downloads needed).
 
 All labs run on CPU or GPU — Phase 0 uses negligible VRAM.
 
-<!-- notes: Each lab is a Jupyter notebook. Encourage students to modify and break things. Try changing the learning rate by 10x and watch what happens. Try removing the bias term. Experimentation builds intuition faster than reading. -->
+<!-- notes: Lab 0.25 (micrograd) is optional but strongly recommended for beginners — Karpathy's approach of building autograd once before trusting PyTorch makes Section 0.3 click. Each lab is a Jupyter notebook. Encourage students to modify and break things. -->
 
 ---
 

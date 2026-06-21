@@ -1,5 +1,5 @@
 /**
- * Loads the *actual* course content — all 9 lecture decks and all 39 lab
+ * Loads the *actual* course content — all 9 lecture decks and all 43 lab
  * sections — straight from the markdown sources in ../lectures and ../labs, so
  * the website contains 100% of the written material (not just the playgrounds).
  *
